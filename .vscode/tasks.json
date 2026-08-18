@@ -1,0 +1,21 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Configure",
+            "type": "shell",
+            "command": "cmake -G 'MinGW Makefiles' -B build/"
+        },
+        {
+            "label": "Build",
+            "type": "shell",
+            "command": "cmake --build build/",
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "Deploy",
+            "type": "shell",
+            "command": "./build/bestagon.exe"
+        }
+    ]
+}

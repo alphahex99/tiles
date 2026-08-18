@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*.tcc": "cpp"
+    },
+    "files.readonlyInclude": {
+        "C:/msys64/ucrt64/include/**": true,
+        "build/**": true,
+        "lib/raylib-6.0_win64_mingw-w64/**": true
+    }
+}

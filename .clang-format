@@ -1,0 +1,23 @@
+---
+Language : Cpp
+BasedOnStyle : Microsoft
+AlignArrayOfStructures : Left
+AlignConsecutiveMacros : AcrossEmptyLines
+AlignTrailingComments :
+  Kind: Always
+  OverEmptyLines: 0
+AllowShortLoopsOnASingleLine : false
+AllowShortIfStatementsOnASingleLine : Never
+IndentCaseLabels : true #
+IndentWidth : 4
+SpaceAfterCStyleCast : true
+SortIncludes : Never
+InsertNewlineAtEOF: true
+# LineEndingStyle: LE_LF / LE_DeriveLF
+SpacesInParens : Custom
+SpacesInParensOptions :
+  InEmptyParentheses : false
+  InConditionalStatements: false
+  InCStyleCasts : false
+BreakAdjacentStringLiterals : true
+PointerAlignment: Right
