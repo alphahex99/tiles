@@ -4,7 +4,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/bestagon.exe",
+            "program": "${workspaceFolder}/build/tiles.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/",

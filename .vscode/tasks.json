@@ -15,7 +15,7 @@
         {
             "label": "Deploy",
             "type": "shell",
-            "command": "./build/bestagon.exe"
+            "command": "./build/tiles.exe"
         }
     ]
 }
