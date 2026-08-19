@@ -8,7 +8,7 @@
 
 #include "Random.hpp"
 
-#define BLOCK_DEF()                                                                                                    \
+#define BLOCK_TYPE_DEF()                                                                                               \
     IT(ArmorHeavy, Gray)                                                                                               \
     IT(ArmorHeavy, Green)                                                                                              \
     IT(ArmorHeavy, Red)                                                                                                \
@@ -20,31 +20,42 @@
     IT(ArmorLight, Teal)                                                                                               \
     IT(ArmorLight, Violet)
 
+static constexpr float TILE_SIZE = 64.0f; // TODO
+
+static constexpr int TILES_WIDTH = 40;
+static constexpr int TILES_HEIGHT = 60;
+
 class Map
 {
   public:
-    enum class Block
+    enum class BlockType
     {
-#define IT(type, color) type##color,
-        BLOCK_DEF()
+#define IT(blockType, color) blockType##color,
+        BLOCK_TYPE_DEF()
 
         Count
 #undef IT
     };
+    struct Block
+    {
+        BlockType blockType;
+
+        bool selected; // TODO
+    };
 
     Map()
     {
-        for (std::size_t i = 0; i < static_cast<int>(Block::Count); i++)
+        for (std::size_t i = 0; i < static_cast<int>(BlockType::Count); i++)
         {
-            block_textures[i] = LoadTexture(block_texture_paths[i]);
-            SetTextureFilter(block_textures[i], TEXTURE_FILTER_POINT);
+            blockTypeTextures[i] = LoadTexture(blockTypeTexturePaths[i]);
+            SetTextureFilter(blockTypeTextures[i], TEXTURE_FILTER_POINT);
         }
         Generate();
     }
 
     ~Map()
     {
-        for (Texture2D texture : block_textures)
+        for (Texture2D texture : blockTypeTextures)
         {
             UnloadTexture(texture);
         }
@@ -52,43 +63,54 @@ class Map
 
     void Draw() const
     {
-        constexpr float tile_size = 64.0f;
-
         for (int y = 0; y < blocks.size(); y++)
         {
             for (int x = 0; x < blocks[y].size(); x++)
             {
-                Block block = blocks[y][x];
+                const Block &block = blocks[y][x];
+                BlockType blockType = block.blockType;
 
-                Texture2D texture = block_textures[static_cast<int>(block)];
+                Texture2D texture = blockTypeTextures[static_cast<int>(blockType)];
+                Vector2 position = GetWorldToScreen({static_cast<float>(x), static_cast<float>(y)});
 
-                // Rotate square grid
-                //  ------ x
-                // |
-                // |
-                // y
-                //
-                // to isometric grid.
-                //   /\
-                //  /  \
-                // y    x
-                Vector2 position = {(tile_size / 2) * (x - y), (tile_size / 2) * y + (tile_size / 4) * (x - y)};
-
-                DrawTextureV(texture, position, WHITE);
+                DrawTextureV(texture, position, block.selected ? PINK : WHITE);
             }
         }
+    }
+
+    void OnMouseButtonLeft(Vector2 mousePosition)
+    {
+        Vector2 position = GetScreenToWorld(mousePosition);
+
+        int x = static_cast<int>(position.x);
+        int y = static_cast<int>(position.y);
+
+        if (y < 0 || y >= blocks.size())
+        {
+            return;
+        }
+        if (x < 0 || x >= blocks[y].size())
+        {
+            return;
+        }
+
+        blocks[y][x].selected = true;
+    }
+
+    void OnMouseButtonRight(Vector2 mousePosition)
+    {
     }
 
   private:
     std::vector<std::vector<Block>> blocks;
 
-    std::array<const char *, static_cast<int>(Block::Count)> block_texture_paths{
-#define IT(type, color) "sprites/" #type "/" #color ".png",
-        BLOCK_DEF()
+    std::array<const char *, static_cast<int>(BlockType::Count)> blockTypeTexturePaths{
+#define IT(blockType, color) "sprites/" #blockType "/" #color ".png",
+        BLOCK_TYPE_DEF()
 #undef IT
     };
 
-    std::array<Texture2D, static_cast<int>(Block::Count)> block_textures{};
+    std::array<Texture2D, static_cast<int>(BlockType::Count)> blockTypeTextures{};
 
     Random rand{};
 
@@ -102,30 +124,63 @@ class Map
 
             for (std::size_t x = 0; x < 20; x++)
             {
-                Block block = static_cast<Block>(rand.int_rand(0, static_cast<int>(Block::Count) - 1));
+                BlockType blockType = static_cast<BlockType>(rand.int_rand(0, static_cast<int>(BlockType::Count) - 1));
 #if 1
                 if (x == 0 && y == 0)
                 {
-                    block = Block::ArmorHeavyViolet;
+                    blockType = BlockType::ArmorHeavyViolet;
                 }
                 else if (y == 0)
                 {
-                    block = Block::ArmorHeavyRed;
+                    blockType = BlockType::ArmorHeavyRed;
                 }
                 else if (x == 0)
                 {
-                    block = Block::ArmorHeavyTeal;
+                    blockType = BlockType::ArmorHeavyTeal;
                 }
                 else
                 {
-                    block = Block::ArmorLightGray;
+                    blockType = BlockType::ArmorLightGray;
                 }
 #endif
+                Block block = {.blockType = blockType, .selected = false};
+
                 blocks_x.push_back(block);
             }
 
             blocks.push_back(blocks_x);
         }
+    }
+
+    static Vector2 GetScreenToWorld(Vector2 position)
+    {
+        // Rotate isometric grid
+        //   /\
+        //  /  \
+        // y    x
+        //
+        // to square grid.
+        //  ------ x
+        // |
+        // |
+        // y
+        return {(1 / TILE_SIZE) * (position.x + 2.0f * position.y), (1 / TILE_SIZE) * (2.0f * position.y - position.x)};
+    }
+
+    static Vector2 GetWorldToScreen(Vector2 position)
+    {
+        // Rotate square grid
+        //  ------ x
+        // |
+        // |
+        // y
+        //
+        // to isometric grid.
+        //   /\
+        //  /  \
+        // y    x
+        return {(TILE_SIZE / 2) * (position.x - position.y),
+                (TILE_SIZE / 2) * position.y + (TILE_SIZE / 4) * (position.x - position.y)};
     }
 };
 

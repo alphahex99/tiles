@@ -37,7 +37,6 @@ int main(int argc, char *argv[])
         {
             camera.target.x += movementSpeed;
         }
-
         camera.zoom = Clamp(camera.zoom + GetMouseWheelMove() * 0.1f, 0.25f, 4.0f);
         camera.offset = {GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f};
 
@@ -50,6 +49,16 @@ int main(int argc, char *argv[])
                 map.Draw();
             }
             EndMode2D();
+
+            Vector2 mousePosition = GetScreenToWorld2D(GetMousePosition(), camera);
+            /* if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) */ if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+            {
+                map.OnMouseButtonLeft(mousePosition);
+            }
+            if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+            {
+                map.OnMouseButtonRight(mousePosition);
+            }
         }
         EndDrawing();
     }
