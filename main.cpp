@@ -9,6 +9,7 @@ int main(int argc, char *argv[])
 {
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(800, 450, argv[0]);
+
     SetTargetFPS(144);
 
     Camera2D camera{
@@ -41,21 +42,21 @@ int main(int argc, char *argv[])
         camera.offset = {GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f};
 
         Vector2 mousePosition = GetScreenToWorld2D(GetMousePosition(), camera);
-        if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+        if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) || IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
         {
-            map.OnMouseButtonLeftDown(mousePosition);
+            map.OnMouseButtonDown(mousePosition);
         }
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
-            map.OnMouseButtonLeftPressed(mousePosition);
-        }
-        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
-        {
-            map.OnMouseButtonLeftReleased();
+            map.OnMouseButtonPressed(mousePosition, MOUSE_BUTTON_LEFT);
         }
         if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
         {
-            map.OnMouseButtonRightPressed(mousePosition);
+            map.OnMouseButtonPressed(mousePosition, MOUSE_BUTTON_RIGHT);
+        }
+        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) || IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
+        {
+            map.OnMouseButtonReleased();
         }
 
         BeginDrawing();
