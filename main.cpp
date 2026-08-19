@@ -40,6 +40,24 @@ int main(int argc, char *argv[])
         camera.zoom = Clamp(camera.zoom + GetMouseWheelMove() * 0.1f, 0.25f, 4.0f);
         camera.offset = {GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f};
 
+        Vector2 mousePosition = GetScreenToWorld2D(GetMousePosition(), camera);
+        if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+        {
+            map.OnMouseButtonLeftDown(mousePosition);
+        }
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        {
+            map.OnMouseButtonLeftPressed(mousePosition);
+        }
+        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
+        {
+            map.OnMouseButtonLeftReleased();
+        }
+        if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+        {
+            map.OnMouseButtonRightPressed(mousePosition);
+        }
+
         BeginDrawing();
         {
             ClearBackground(DARKGRAY);
@@ -50,23 +68,7 @@ int main(int argc, char *argv[])
             }
             EndMode2D();
 
-            Vector2 mousePosition = GetScreenToWorld2D(GetMousePosition(), camera);
-            if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
-            {
-                map.OnMouseButtonLeftDown(mousePosition);
-            }
-            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-            {
-                map.OnMouseButtonLeftPressed(mousePosition);
-            }
-            if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
-            {
-                map.OnMouseButtonLeftReleased();
-            }
-            if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
-            {
-                map.OnMouseButtonRightPressed(mousePosition);
-            }
+            DrawFPS(10, 10);
         }
         EndDrawing();
     }

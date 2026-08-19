@@ -210,6 +210,7 @@ class Map
         // |
         // |
         // y
+        //
         return {(1 / TILE_SIZE) * (position.x + 2.0f * position.y), (1 / TILE_SIZE) * (2.0f * position.y - position.x)};
     }
 
@@ -225,6 +226,7 @@ class Map
         //   /\
         //  /  \
         // y    x
+        //
         return {(TILE_SIZE / 2) * (position.x - position.y),
                 (TILE_SIZE / 2) * position.y + (TILE_SIZE / 4) * (position.x - position.y)};
     }
