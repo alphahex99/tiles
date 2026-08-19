@@ -2,6 +2,7 @@
 #define _MAP_HPP
 
 #include <array>
+#include <cmath>
 #include <vector>
 
 #include "raylib.h"
@@ -73,6 +74,8 @@ class Map
                 Texture2D texture = blockTypeTextures[static_cast<int>(blockType)];
                 Vector2 position = GetWorldToScreen({static_cast<float>(x), static_cast<float>(y)});
 
+                position.x -= TILE_SIZE / 2;
+
                 DrawTextureV(texture, position, block.selected ? PINK : WHITE);
             }
         }
@@ -82,8 +85,8 @@ class Map
     {
         Vector2 position = GetScreenToWorld(mousePosition);
 
-        int x = static_cast<int>(position.x);
-        int y = static_cast<int>(position.y);
+        int x = static_cast<int>(std::floor(position.x));
+        int y = static_cast<int>(std::floor(position.y));
 
         if (x < 0 || x >= blocks.size())
         {
