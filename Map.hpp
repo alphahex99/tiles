@@ -3,6 +3,7 @@
 
 #include <array>
 #include <cmath>
+#include <algorithm>
 #include <vector>
 
 #include "raylib.h"
@@ -10,7 +11,7 @@
 #include "Random.hpp"
 
 #define BLOCK_TYPE_DEF()                                                                                               \
-    IT(Debug, Null)                                                                                                    \
+    IT(Debug, Null) /* 0 */                                                                                            \
     IT(ArmorHeavy, Gray)                                                                                               \
     IT(ArmorHeavy, Green)                                                                                              \
     IT(ArmorHeavy, Red)                                                                                                \
@@ -32,22 +33,22 @@ class Map
   public:
     enum class BlockType
     {
+        DebugEmpty = -1,
+
 #define IT(blockType, color) blockType##color,
         BLOCK_TYPE_DEF()
+#undef IT
 
         Count
-#undef IT
     };
     struct Block
     {
         BlockType blockType;
-
-        bool selected; // TODO
     };
 
     Map()
     {
-        for (std::size_t i = 0; i < static_cast<int>(BlockType::Count); i++)
+        for (int i = 0; i < static_cast<int>(BlockType::Count); i++)
         {
             blockTypeTextures[i] = LoadTexture(blockTypeTexturePaths[i]);
             SetTextureFilter(blockTypeTextures[i], TEXTURE_FILTER_POINT);
@@ -65,16 +66,30 @@ class Map
 
     void Draw() const
     {
+        int minX = std::min(selection.fromX, selection.toX);
+        int maxX = std::max(selection.fromX, selection.toX);
+        int minY = std::min(selection.fromY, selection.toY);
+        int maxY = std::max(selection.fromY, selection.toY);
+
         for (int x = 0; x < blocks.size(); x++)
         {
+            bool hitX = (x >= minX) && (x <= maxX);
+
             for (int y = 0; y < blocks[x].size(); y++)
             {
                 const Block &block = blocks[x][y];
-                BlockType blockType = block.selected ? BlockType::DebugNull : block.blockType;
+
+                if (block.blockType == BlockType::DebugEmpty)
+                {
+                    continue;
+                }
+
+                bool selected = hitX && (y >= minY) && (y <= maxY);
+
+                BlockType blockType = selected ? BlockType::DebugNull : block.blockType;
 
                 Texture2D texture = blockTypeTextures[static_cast<int>(blockType)];
                 Vector2 position = GetWorldToScreen({static_cast<float>(x), static_cast<float>(y)});
-
                 position.x -= TILE_SIZE / 2;
 
                 DrawTextureV(texture, position, WHITE);
@@ -89,27 +104,18 @@ class Map
         int x = static_cast<int>(std::floor(position.x));
         int y = static_cast<int>(std::floor(position.y));
 
-        if (x < 0 || x >= blocks.size())
-        {
-            return;
-        }
-        if (y < 0 || y >= blocks[x].size())
-        {
-            return;
-        }
-
-        blocks[x][y].selected = true;
+        selection.toX = x;
+        selection.toY = y;
     }
 
-    void OnMouseButtonLeftPressed()
+    void OnMouseButtonLeftPressed(Vector2 mousePosition)
     {
-        for (int x = 0; x < blocks.size(); x++)
-        {
-            for (int y = 0; y < blocks[x].size(); y++)
-            {
-                blocks[x][y].selected = false;
-            }
-        }
+        Vector2 position = GetScreenToWorld(mousePosition);
+
+        int x = static_cast<int>(std::floor(position.x));
+        int y = static_cast<int>(std::floor(position.y));
+
+        selection = {.fromX = x, .fromY = y, .toX = x, .toY = y};
     }
 
     void OnMouseButtonLeftReleased()
@@ -133,6 +139,14 @@ class Map
 
     Random rand{};
 
+    struct Selection
+    {
+        int fromX = -1;
+        int fromY = -1;
+        int toX = -1;
+        int toY = -1;
+    } selection;
+
     void Generate()
     {
         blocks.clear();
@@ -143,8 +157,8 @@ class Map
 
             for (int y = 0; y < TILES_HEIGHT; y++)
             {
-                BlockType blockType = static_cast<BlockType>(rand.int_rand(0, static_cast<int>(BlockType::Count) - 1));
-#if 1
+                BlockType blockType = GetRandomBlockType();
+#if 0
                 if (x == 0 && y == 0)
                 {
                     blockType = BlockType::ArmorHeavyViolet;
@@ -162,12 +176,25 @@ class Map
                     blockType = BlockType::ArmorLightGray;
                 }
 #endif
-                Block block = {.blockType = blockType, .selected = false};
+                Block block = {.blockType = blockType};
 
                 blocks_y.push_back(block);
             }
 
             blocks.push_back(blocks_y);
+        }
+    }
+
+    BlockType GetRandomBlockType()
+    {
+        while (true) // there is a NON-ZERO chance this will hang until the heat death of the universe :P
+        {
+            BlockType result = static_cast<BlockType>(rand.int_rand(-1, static_cast<int>(BlockType::Count) - 1));
+
+            if (result != BlockType::DebugNull) // yes, i am THIS lazy to fix the BLOCK_TYPE_DEF() approach
+            {
+                return result;
+            }
         }
     }
 

@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
             }
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
             {
-                map.OnMouseButtonLeftPressed();
+                map.OnMouseButtonLeftPressed(mousePosition);
             }
             if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
             {
