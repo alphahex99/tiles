@@ -10,6 +10,7 @@
 #include "Random.hpp"
 
 #define BLOCK_TYPE_DEF()                                                                                               \
+    IT(Debug, Null)                                                                                                    \
     IT(ArmorHeavy, Gray)                                                                                               \
     IT(ArmorHeavy, Green)                                                                                              \
     IT(ArmorHeavy, Red)                                                                                                \
@@ -69,14 +70,14 @@ class Map
             for (int y = 0; y < blocks[x].size(); y++)
             {
                 const Block &block = blocks[x][y];
-                BlockType blockType = block.blockType;
+                BlockType blockType = block.selected ? BlockType::DebugNull : block.blockType;
 
                 Texture2D texture = blockTypeTextures[static_cast<int>(blockType)];
                 Vector2 position = GetWorldToScreen({static_cast<float>(x), static_cast<float>(y)});
 
                 position.x -= TILE_SIZE / 2;
 
-                DrawTextureV(texture, position, block.selected ? PINK : WHITE);
+                DrawTextureV(texture, position, WHITE);
             }
         }
     }
