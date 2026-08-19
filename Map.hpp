@@ -63,11 +63,11 @@ class Map
 
     void Draw() const
     {
-        for (int y = 0; y < blocks.size(); y++)
+        for (int x = 0; x < blocks.size(); x++)
         {
-            for (int x = 0; x < blocks[y].size(); x++)
+            for (int y = 0; y < blocks[x].size(); y++)
             {
-                const Block &block = blocks[y][x];
+                const Block &block = blocks[x][y];
                 BlockType blockType = block.blockType;
 
                 Texture2D texture = blockTypeTextures[static_cast<int>(blockType)];
@@ -78,26 +78,41 @@ class Map
         }
     }
 
-    void OnMouseButtonLeft(Vector2 mousePosition)
+    void OnMouseButtonLeftDown(Vector2 mousePosition)
     {
         Vector2 position = GetScreenToWorld(mousePosition);
 
         int x = static_cast<int>(position.x);
         int y = static_cast<int>(position.y);
 
-        if (y < 0 || y >= blocks.size())
+        if (x < 0 || x >= blocks.size())
         {
             return;
         }
-        if (x < 0 || x >= blocks[y].size())
+        if (y < 0 || y >= blocks[x].size())
         {
             return;
         }
 
-        blocks[y][x].selected = true;
+        blocks[x][y].selected = true;
     }
 
-    void OnMouseButtonRight(Vector2 mousePosition)
+    void OnMouseButtonLeftPressed()
+    {
+        for (int x = 0; x < blocks.size(); x++)
+        {
+            for (int y = 0; y < blocks[x].size(); y++)
+            {
+                blocks[x][y].selected = false;
+            }
+        }
+    }
+
+    void OnMouseButtonLeftReleased()
+    {
+    }
+
+    void OnMouseButtonRightPressed(Vector2 mousePosition)
     {
     }
 
@@ -118,11 +133,11 @@ class Map
     {
         blocks.clear();
 
-        for (std::size_t y = 0; y < 20; y++)
+        for (int x = 0; x < TILES_WIDTH; x++)
         {
-            std::vector<Block> blocks_x;
+            std::vector<Block> blocks_y;
 
-            for (std::size_t x = 0; x < 20; x++)
+            for (int y = 0; y < TILES_HEIGHT; y++)
             {
                 BlockType blockType = static_cast<BlockType>(rand.int_rand(0, static_cast<int>(BlockType::Count) - 1));
 #if 1
@@ -145,10 +160,10 @@ class Map
 #endif
                 Block block = {.blockType = blockType, .selected = false};
 
-                blocks_x.push_back(block);
+                blocks_y.push_back(block);
             }
 
-            blocks.push_back(blocks_x);
+            blocks.push_back(blocks_y);
         }
     }
 

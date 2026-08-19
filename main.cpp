@@ -51,13 +51,21 @@ int main(int argc, char *argv[])
             EndMode2D();
 
             Vector2 mousePosition = GetScreenToWorld2D(GetMousePosition(), camera);
-            /* if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) */ if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+            if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
             {
-                map.OnMouseButtonLeft(mousePosition);
+                map.OnMouseButtonLeftDown(mousePosition);
+            }
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+            {
+                map.OnMouseButtonLeftPressed();
+            }
+            if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
+            {
+                map.OnMouseButtonLeftReleased();
             }
             if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
             {
-                map.OnMouseButtonRight(mousePosition);
+                map.OnMouseButtonRightPressed(mousePosition);
             }
         }
         EndDrawing();
