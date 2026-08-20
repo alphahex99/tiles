@@ -1,88 +1,83 @@
 #ifndef _RANDOM_HPP
 #define _RANDOM_HPP
 
-#include <ctime>
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <random>
+#include <type_traits>
 
 #include "raylib.h"
 
 class Random
 {
   public:
-    Random()
+    Random(unsigned int seed = std::random_device{}()) : random(seed)
     {
-        srand(std::time({}));
-    }
-
-    Random(int seed)
-    {
-        srand(seed);
     }
 
     bool bool_rand()
     {
-        return (bool) (rand() % 2);
+        return (random() & 1) != 0;
     }
 
-    float float_rand()
+    float float_rand(float a, float b)
     {
-        return (float) (rand()) / (float) (RAND_MAX);
+        return std::uniform_real_distribution<float>(a, b)(random);
     }
 
-    float float_rand(int a, int b)
-    {
-        if (a > b)
-        {
-            return float_rand(b, a);
-        }
-        if (a == b)
-        {
-            return a;
-        }
-        return (float) int_rand(a, b) + float_rand();
-    }
-
+    /// @returns INT_MIN to INT_MAX
     int int_rand()
     {
-        return rand();
+        return static_cast<int>(random());
     }
 
     int int_rand(int a, int b)
     {
-        if (a > b)
-        {
-            return int_rand(b, a);
-        }
-        if (a == b)
-        {
-            return a;
-        }
-        return a + (rand() % (b - a));
+        return std::uniform_int_distribution<int>(a, b)(random);
     }
 
+    /// @returns 0 to UINT_MAX
+    unsigned int uint_rand()
+    {
+        return random();
+    }
+
+    unsigned int uint_rand(unsigned int a, unsigned int b)
+    {
+        return std::uniform_int_distribution<unsigned int>(a, b)(random);
+    }
+
+    /// @returns 2D unit vector (length = 1.0f)
     Vector2 vec2_rand()
     {
-        float azimuth = float_rand(0, 2 * PI);
-
-        float x = cosf(azimuth);
-        float y = sinf(azimuth);
-
-        return Vector2{x, y};
+        const float azimuth = float_rand(0.0f, 2.0f * PI);
+#ifdef __GLIBC__
+        float x, y;
+        sincosf(azimuth, &y, &x); // tiny FSINCOS instruction optimization
+#else
+        const float x = cosf(azimuth);
+        const float y = sinf(azimuth);
+#endif
+        return {x, y};
     }
 
+    /// @returns 3D unit vector (length = 1.0f)
     Vector3 vec3_rand()
     {
-        float azimuth = float_rand(0.0f, 2 * PI);
-
-        float z = float_rand(-1.0f, 1.0f);
-        float radius = sqrtf(1.0f - z * z);
-
-        float x = radius * cosf(azimuth);
-        float y = radius * sinf(azimuth);
-
-        return Vector3{x, y, z};
+        const float azimuth = float_rand(0.0f, 2.0f * PI);
+        const float z = float_rand(-1.0f, 1.0f);
+        const float r = sqrtf(1.0f - z * z);
+#ifdef __GLIBC__
+        float x, y;
+        sincosf(azimuth, &y, &x); // tiny FSINCOS instruction optimization
+#else
+        const float x = cosf(azimuth);
+        const float y = sinf(azimuth);
+#endif
+        return {r * x, r * y, z};
     }
+
+  private:
+    std::conditional_t<sizeof(int) == 4, std::mt19937, std::mt19937_64> random; // 32B+64B support
 };
 
-#endif /* _SRC_RANDOM_HPP */
+#endif /* _RANDOM_HPP */
