@@ -9,8 +9,7 @@ int main(int argc, char *argv[])
 {
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(800, 450, argv[0]);
-
-    SetTargetFPS(144);
+    // SetTargetFPS(144);
 
     Camera2D camera{
         {GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f},

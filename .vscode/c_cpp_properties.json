@@ -4,6 +4,7 @@
             "name": "Win32",
             "includePath": [
                 "C:/msys64/ucrt64/include/",
+                "${workspaceFolder}/lib/flat_hash_map/",
                 "${workspaceFolder}/lib/raylib-6.0_win64_mingw-w64/include/",
                 "${workspaceFolder}/lib/simdjson-4.6.7/",
                 "${workspaceFolder}/"

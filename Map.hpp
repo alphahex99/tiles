@@ -30,8 +30,8 @@
 
 static constexpr float TILE_SIZE = 64.0f; // TODO
 
-static constexpr int TILES_WIDTH = 32;
-static constexpr int TILES_HEIGHT = 32;
+static constexpr int TILES_WIDTH = 512;
+static constexpr int TILES_HEIGHT = 512;
 
 class Map
 {

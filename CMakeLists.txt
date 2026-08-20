@@ -9,11 +9,17 @@ set_target_properties(raylib PROPERTIES
     IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/lib/raylib-6.0_win64_mingw-w64/lib/libraylib.a
     LINKER_LANGUAGE C
 )
+target_include_directories(raylib INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/raylib-6.0_win64_mingw-w64/include
+)
 
 add_library(simdjson STATIC
     ${CMAKE_CURRENT_SOURCE_DIR}/lib/simdjson-4.6.7/simdjson.cpp
 )
-target_include_directories(simdjson PUBLIC
+target_compile_options(simdjson PRIVATE
+    -O3
+)
+target_include_directories(simdjson INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/lib/simdjson-4.6.7
 )
 
@@ -22,7 +28,7 @@ target_compile_options(tiles PRIVATE
     -g -Og
 )
 target_include_directories(tiles PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/raylib-6.0_win64_mingw-w64/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/flat_hash_map/
     ${CMAKE_CURRENT_SOURCE_DIR}/
 )
 target_sources(tiles PRIVATE
