@@ -1,0 +1,45 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Block Definition",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "variants"
+    ],
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "Display name for UI."
+        },
+        "variants": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "id",
+                    "texture"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Display name for UI."
+                    },
+                    "id": {
+                        // These have to be unique and randomly generated to avoid collisions with mods.
+                        // Beware of online generators with 53 bit precision where the last 2-4 digits are always 0.
+                        // >Tasks: Run Task > get_random_ids
+                        "type": "integer",
+                        "minimum": 0, // reserved for Null block
+                        "maximum": 18446744073709551615 // u64 max
+                    },
+                    "texture": {
+                        "type": "string",
+                        "description": "Relative filepath to texture."
+                    }
+                }
+            }
+        }
+    }
+}

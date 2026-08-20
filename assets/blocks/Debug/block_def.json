@@ -1,0 +1,19 @@
+{
+    "variants": [
+        { // Fallback when id doesn't exist.
+            "name": "Null",
+            "id": 0,
+            "texture": "Null.png"
+        },
+        {
+            "name": "Selection Add",
+            "id": 13935501760859369348,
+            "texture": "SelectionAdd.png"
+        },
+        {
+            "name": "Selection Remove",
+            "id": 7963692563000193987,
+            "texture": "SelectionRemove.png"
+        }
+    ]
+}

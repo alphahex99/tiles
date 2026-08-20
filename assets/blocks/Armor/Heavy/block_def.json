@@ -1,0 +1,25 @@
+{
+    "name": "Heavy Armor",
+    "variants": [
+        {
+            "id": 11533769789829851843,
+            "texture": "Default.png"
+        },
+        {
+            "id": 5203031707467201293,
+            "texture": "Green.png"
+        },
+        {
+            "id": 16708374252848965385,
+            "texture": "Red.png"
+        },
+        {
+            "id": 12335621918942271803,
+            "texture": "Teal.png"
+        },
+        {
+            "id": 7737968438957518385,
+            "texture": "Violet.png"
+        }
+    ]
+}

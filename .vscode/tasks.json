@@ -16,6 +16,14 @@
             "label": "Deploy",
             "type": "shell",
             "command": "./build/tiles.exe"
-        }
+        },
+        {
+            "label": "get_random_ids",
+            "type": "shell",
+            "windows": {
+                "command": "$random = [System.Security.Cryptography.RandomNumberGenerator]::Create(); 1..10 | ForEach-Object { $b = [byte[]]::new(8); $random.GetBytes($b); [BitConverter]::ToUInt64($b, 0) }; $random.Dispose()"
+            },
+            "problemMatcher": []
+        },
     ]
 }

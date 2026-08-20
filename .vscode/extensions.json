@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "ms-vscode.cpptools",
+        "ms-vscode.powershell",
+        "twxs.cmake"
+    ],
+    "unwantedRecommendations": [
+        "ms-vscode.cmake-tools"
+    ]
+}

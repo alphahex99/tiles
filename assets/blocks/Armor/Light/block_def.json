@@ -1,0 +1,25 @@
+{
+    "name": "Light Armor",
+    "variants": [
+        {
+            "id": 7111408100565355131,
+            "texture": "Default.png"
+        },
+        {
+            "id": 3297154843287590076,
+            "texture": "Green.png"
+        },
+        {
+            "id": 7035397684704792653,
+            "texture": "Red.png"
+        },
+        {
+            "id": 2491077942741532368,
+            "texture": "Teal.png"
+        },
+        {
+            "id": 1279412710917717413,
+            "texture": "Violet.png"
+        }
+    ]
+}

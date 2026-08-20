@@ -11,22 +11,22 @@
 
 #include "Random.hpp"
 
-// IT(group, color)
+// IT(group1, group2, color)
 #define BLOCKTYPE_DEF_DEBUG()                                                                                          \
-    IT(Debug, Null) /* 0 */                                                                                            \
-    IT(Debug, SelectionAdd)                                                                                            \
-    IT(Debug, SelectionRemove)
+    IT(Debug, , Null) /* 0 */                                                                                          \
+    IT(Debug, , SelectionAdd)                                                                                          \
+    IT(Debug, , SelectionRemove)
 #define BLOCKTYPE_DEF_ARMOR()                                                                                          \
-    IT(ArmorHeavy, Gray)                                                                                               \
-    IT(ArmorHeavy, Green)                                                                                              \
-    IT(ArmorHeavy, Red)                                                                                                \
-    IT(ArmorHeavy, Teal)                                                                                               \
-    IT(ArmorHeavy, Violet)                                                                                             \
-    IT(ArmorLight, Gray)                                                                                               \
-    IT(ArmorLight, Green)                                                                                              \
-    IT(ArmorLight, Red)                                                                                                \
-    IT(ArmorLight, Teal)                                                                                               \
-    IT(ArmorLight, Violet)
+    IT(Armor, Heavy, Default)                                                                                          \
+    IT(Armor, Heavy, Green)                                                                                            \
+    IT(Armor, Heavy, Red)                                                                                              \
+    IT(Armor, Heavy, Teal)                                                                                             \
+    IT(Armor, Heavy, Violet)                                                                                           \
+    IT(Armor, Light, Default)                                                                                          \
+    IT(Armor, Light, Green)                                                                                            \
+    IT(Armor, Light, Red)                                                                                              \
+    IT(Armor, Light, Teal)                                                                                             \
+    IT(Armor, Light, Violet)
 
 static constexpr float TILE_SIZE = 64.0f; // TODO
 
@@ -40,7 +40,7 @@ class Map
     {
         DebugEmpty = -1,
 
-#define IT(group, color) group##color,
+#define IT(group1, group2, color) group1##group2##color,
         BLOCKTYPE_DEF_DEBUG()
         BLOCKTYPE_DEF_ARMOR()
 #undef IT
@@ -182,8 +182,11 @@ class Map
     std::vector<std::vector<Block>> blocks;
 
     std::array<const char *, static_cast<int>(BlockType::Count)> blockTypeTexturePaths{
-#define IT(group, color) "sprites/" #group "/" #color ".png",
-        BLOCKTYPE_DEF_DEBUG() BLOCKTYPE_DEF_ARMOR()
+#define IT(group1, group2, color) "assets/blocks/" #group1 "/" #color ".png",
+        BLOCKTYPE_DEF_DEBUG()
+#undef IT
+#define IT(group1, group2, color) "assets/blocks/" #group1 "/" #group2 "/" #color ".png",
+            BLOCKTYPE_DEF_ARMOR()
 #undef IT
     };
 
@@ -253,7 +256,7 @@ class Map
                         continue;
                     }
                     [[fallthrough]];
-#define IT(group, color) case BlockType::group##color:
+#define IT(group1, group2, color) case BlockType::group1##group2##color:
                     BLOCKTYPE_DEF_ARMOR()
 #undef IT
                     return blockType;
