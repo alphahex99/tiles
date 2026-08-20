@@ -56,15 +56,15 @@ class Map
     {
         for (int i = 0; i < static_cast<int>(BlockType::Count); i++)
         {
-            blockTypeTextures[i] = LoadTexture(blockTypeTexturePaths[i]);
-            SetTextureFilter(blockTypeTextures[i], TEXTURE_FILTER_POINT);
+            mBlockTypeTextures[i] = LoadTexture(mBlockTypeTexturePaths[i]);
+            SetTextureFilter(mBlockTypeTextures[i], TEXTURE_FILTER_POINT);
         }
         Generate();
     }
 
     ~Map()
     {
-        for (Texture2D texture : blockTypeTextures)
+        for (Texture2D texture : mBlockTypeTextures)
         {
             UnloadTexture(texture);
         }
@@ -72,18 +72,18 @@ class Map
 
     void Draw() const
     {
-        int minX = std::min(selection.fromX, selection.toX);
-        int maxX = std::max(selection.fromX, selection.toX);
-        int minY = std::min(selection.fromY, selection.toY);
-        int maxY = std::max(selection.fromY, selection.toY);
+        int minX = std::min(mSelection.fromX, mSelection.toX);
+        int maxX = std::max(mSelection.fromX, mSelection.toX);
+        int minY = std::min(mSelection.fromY, mSelection.toY);
+        int maxY = std::max(mSelection.fromY, mSelection.toY);
 
-        for (int x = 0; x < blocks.size(); x++)
+        for (int x = 0; x < mBlocks.size(); x++)
         {
             bool hitX = (x >= minX) && (x <= maxX);
 
-            for (int y = 0; y < blocks.front().size(); y++)
+            for (int y = 0; y < mBlocks.front().size(); y++)
             {
-                const Block &block = blocks[x][y];
+                const Block &block = mBlocks[x][y];
 
                 bool empty = (block.blockType == BlockType::DebugEmpty);
                 bool hit = hitX && (y >= minY) && (y <= maxY);
@@ -97,7 +97,7 @@ class Map
 
                 if (!empty)
                 {
-                    Texture2D texture = blockTypeTextures[static_cast<int>(block.blockType)];
+                    Texture2D texture = mBlockTypeTextures[static_cast<int>(block.blockType)];
 
                     DrawTextureV(texture, position, hit ? GRAY : WHITE);
                 }
@@ -105,13 +105,13 @@ class Map
                 if (hit)
                 {
                     Texture2D texture;
-                    if (selection.button == MOUSE_BUTTON_LEFT)
+                    if (mSelection.button == MOUSE_BUTTON_LEFT)
                     {
-                        texture = blockTypeTextures[static_cast<int>(BlockType::DebugSelectionAdd)];
+                        texture = mBlockTypeTextures[static_cast<int>(BlockType::DebugSelectionAdd)];
                     }
-                    else if (selection.button == MOUSE_BUTTON_RIGHT)
+                    else if (mSelection.button == MOUSE_BUTTON_RIGHT)
                     {
-                        texture = blockTypeTextures[static_cast<int>(BlockType::DebugSelectionRemove)];
+                        texture = mBlockTypeTextures[static_cast<int>(BlockType::DebugSelectionRemove)];
                     }
 
                     DrawTextureV(texture, position, empty ? DARKGRAY : WHITE);
@@ -127,8 +127,8 @@ class Map
         int x = static_cast<int>(std::floor(position.x));
         int y = static_cast<int>(std::floor(position.y));
 
-        selection.toX = x;
-        selection.toY = y;
+        mSelection.toX = x;
+        mSelection.toY = y;
     }
 
     void OnMouseButtonPressed(Vector2 mousePosition, MouseButton button)
@@ -140,48 +140,48 @@ class Map
         int x = static_cast<int>(std::floor(position.x));
         int y = static_cast<int>(std::floor(position.y));
 
-        selection = {.button = button, .fromX = x, .fromY = y, .toX = x, .toY = y};
+        mSelection = {.button = button, .fromX = x, .fromY = y, .toX = x, .toY = y};
     }
 
     void OnMouseButtonReleased()
     {
-        int minX = std::min(selection.fromX, selection.toX);
-        int maxX = std::max(selection.fromX, selection.toX);
-        int minY = std::min(selection.fromY, selection.toY);
-        int maxY = std::max(selection.fromY, selection.toY);
+        int minX = std::min(mSelection.fromX, mSelection.toX);
+        int maxX = std::max(mSelection.fromX, mSelection.toX);
+        int minY = std::min(mSelection.fromY, mSelection.toY);
+        int maxY = std::max(mSelection.fromY, mSelection.toY);
 
         minX = std::max(minX, 0);
-        maxX = std::min(maxX, static_cast<int>(blocks.size()) - 1);
+        maxX = std::min(maxX, static_cast<int>(mBlocks.size()) - 1);
         minY = std::max(minY, 0);
-        maxY = std::min(maxY, static_cast<int>(blocks.front().size()) - 1);
+        maxY = std::min(maxY, static_cast<int>(mBlocks.front().size()) - 1);
 
         for (int x = minX; x <= maxX; x++)
         {
             for (int y = minY; y <= maxY; y++)
             {
-                Block &block = blocks[x][y];
+                Block &block = mBlocks[x][y];
 
-                if (selection.button == MOUSE_BUTTON_LEFT)
+                if (mSelection.button == MOUSE_BUTTON_LEFT)
                 {
                     block.blockType = GetRandomBlockType(false); // add
                 }
-                else if (selection.button == MOUSE_BUTTON_RIGHT)
+                else if (mSelection.button == MOUSE_BUTTON_RIGHT)
                 {
                     block.blockType = BlockType::DebugEmpty; // remove
                 }
             }
         }
 
-        selection.fromX = -1;
-        selection.fromY = -1;
-        selection.toX = -1;
-        selection.toY = -1;
+        mSelection.fromX = -1;
+        mSelection.fromY = -1;
+        mSelection.toX = -1;
+        mSelection.toY = -1;
     }
 
   private:
-    std::vector<std::vector<Block>> blocks;
+    std::vector<std::vector<Block>> mBlocks;
 
-    std::array<const char *, static_cast<int>(BlockType::Count)> blockTypeTexturePaths{
+    std::array<const char *, static_cast<int>(BlockType::Count)> mBlockTypeTexturePaths{
 #define IT(group1, group2, color) "assets/blocks/" #group1 "/" #color ".png",
         BLOCKTYPE_DEF_DEBUG()
 #undef IT
@@ -190,9 +190,9 @@ class Map
 #undef IT
     };
 
-    std::array<Texture2D, static_cast<int>(BlockType::Count)> blockTypeTextures{};
+    std::array<Texture2D, static_cast<int>(BlockType::Count)> mBlockTypeTextures{};
 
-    Random rand{};
+    Random mRand{};
 
     struct Selection
     {
@@ -202,11 +202,11 @@ class Map
         int fromY = -1;
         int toX = -1;
         int toY = -1;
-    } selection;
+    } mSelection;
 
     void Generate()
     {
-        blocks.clear();
+        mBlocks.clear();
 
         for (int x = 0; x < TILES_WIDTH; x++)
         {
@@ -238,7 +238,7 @@ class Map
                 blocksY.push_back(block);
             }
 
-            blocks.push_back(blocksY);
+            mBlocks.push_back(blocksY);
         }
     }
 
@@ -246,7 +246,7 @@ class Map
     {
         while (true) // there is a NON-ZERO chance this will hang until the heat death of the universe :P
         {
-            BlockType blockType = static_cast<BlockType>(rand.int_rand(-1, static_cast<int>(BlockType::Count) - 1));
+            BlockType blockType = static_cast<BlockType>(mRand.int_rand(-1, static_cast<int>(BlockType::Count) - 1));
 
             switch (blockType) // yes, i am THIS lazy to fix the BLOCK_TYPE_DEF() approach
             {

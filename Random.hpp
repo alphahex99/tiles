@@ -10,40 +10,40 @@
 class Random
 {
   public:
-    Random(unsigned int seed = std::random_device{}()) : random(seed)
+    Random(unsigned int seed = std::random_device{}()) : mRandom(seed)
     {
     }
 
     bool bool_rand()
     {
-        return (random() & 1) != 0;
+        return (mRandom() & 1) != 0;
     }
 
     float float_rand(float a, float b)
     {
-        return std::uniform_real_distribution<float>(a, b)(random);
+        return std::uniform_real_distribution<float>(a, b)(mRandom);
     }
 
     /// @returns INT_MIN to INT_MAX
     int int_rand()
     {
-        return static_cast<int>(random());
+        return static_cast<int>(mRandom());
     }
 
     int int_rand(int a, int b)
     {
-        return std::uniform_int_distribution<int>(a, b)(random);
+        return std::uniform_int_distribution<int>(a, b)(mRandom);
     }
 
     /// @returns 0 to UINT_MAX
     unsigned int uint_rand()
     {
-        return random();
+        return mRandom();
     }
 
     unsigned int uint_rand(unsigned int a, unsigned int b)
     {
-        return std::uniform_int_distribution<unsigned int>(a, b)(random);
+        return std::uniform_int_distribution<unsigned int>(a, b)(mRandom);
     }
 
     /// @returns 2D unit vector (length = 1.0f)
@@ -77,7 +77,7 @@ class Random
     }
 
   private:
-    std::conditional_t<sizeof(int) == 4, std::mt19937, std::mt19937_64> random; // 32B+64B support
+    std::conditional_t<sizeof(int) == 4, std::mt19937, std::mt19937_64> mRandom; // 32B+64B support
 };
 
 #endif /* _RANDOM_HPP */
