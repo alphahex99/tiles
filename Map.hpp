@@ -33,17 +33,17 @@ class Map
 
         for (int x = 0; x < mBlocks.size(); x++)
         {
-            bool hitX = (x >= minX) && (x <= maxX);
+            bool selectionHitX = (x >= minX) && (x <= maxX);
 
             for (int y = 0; y < mBlocks.front().size(); y++)
             {
-                const BlockDef &block = mBlockDefManager.GetBlockDef(mBlocks[x][y]);
+                block_id_t id = mBlocks[x][y];
 
-                bool empty = false; // TODO
-                bool hit = hitX && (y >= minY) && (y <= maxY);
+                bool empty = (id == BLOCK_ID_DEBUG_EMPTY);
+                bool selectionHit = selectionHitX && (y >= minY) && (y <= maxY);
 
                 Vector2 position;
-                if (!empty || hit)
+                if (!empty || selectionHit)
                 {
                     position = GetWorldToScreen({static_cast<float>(x), static_cast<float>(y)});
                     position.x -= TILE_SIZE / 2;
@@ -51,19 +51,21 @@ class Map
 
                 if (!empty)
                 {
-                    DrawTextureV(block.texture, position, hit ? GRAY : WHITE);
+                    const BlockDef &block = mBlockDefManager.GetBlockDef(id);
+
+                    DrawTextureV(block.texture, position, selectionHit ? GRAY : WHITE);
                 }
 
-                if (hit)
+                if (selectionHit)
                 {
                     Texture2D texture;
                     if (mSelection.button == MOUSE_BUTTON_LEFT)
                     {
-                        texture = mBlockDefManager.GetBlockDef(BLOCK_ID_SELECTION_ADD).texture;
+                        texture = mBlockDefManager.GetBlockDef(BLOCK_ID_DEBUG_SELECTION_ADD).texture;
                     }
                     else if (mSelection.button == MOUSE_BUTTON_RIGHT)
                     {
-                        texture = mBlockDefManager.GetBlockDef(BLOCK_ID_SELECTION_REMOVE).texture;
+                        texture = mBlockDefManager.GetBlockDef(BLOCK_ID_DEBUG_SELECTION_REMOVE).texture;
                     }
 
                     DrawTextureV(texture, position, empty ? DARKGRAY : WHITE);
@@ -117,7 +119,7 @@ class Map
                 }
                 else if (mSelection.button == MOUSE_BUTTON_RIGHT)
                 {
-                    // TODO: empty
+                    mBlocks[x][y] = BLOCK_ID_DEBUG_EMPTY;
                 }
             }
         }
