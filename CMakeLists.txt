@@ -6,10 +6,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # # # libraries # # #
 
-set(LIB_COMPILE_OPTIONS
-    -O3
-)
-
 add_library(flat_hash_map INTERFACE)
 target_include_directories(flat_hash_map INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/lib/flat_hash_map/
@@ -26,9 +22,6 @@ target_include_directories(raylib INTERFACE
 
 add_library(simdjson STATIC
     ${CMAKE_CURRENT_SOURCE_DIR}/lib/simdjson-4.6.7/simdjson.cpp
-)
-target_compile_options(simdjson PRIVATE
-    ${LIB_COMPILE_OPTIONS}
 )
 target_include_directories(simdjson INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/lib/simdjson-4.6.7
@@ -50,11 +43,15 @@ target_include_directories(tiles PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/
 )
 target_sources(tiles PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/BlockDef.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Jsonc.cpp
 )
 
 target_link_libraries(tiles PRIVATE
+    flat_hash_map
     raylib
     simdjson
+    stb
     winmm
 )

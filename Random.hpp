@@ -3,9 +3,8 @@
 
 #include <cmath>
 #include <random>
-#include <type_traits>
-
 #include "raylib.h"
+#include <type_traits>
 
 class Random
 {

@@ -2,31 +2,13 @@
 #define _MAP_HPP
 
 #include <array>
-#include <assert.h>
+#include <cassert>
 #include <cmath>
-#include <algorithm>
+#include "raylib.h"
 #include <vector>
 
-#include "raylib.h"
-
+#include "BlockDefManager.hpp"
 #include "Random.hpp"
-
-// IT(group1, group2, color)
-#define BLOCKTYPE_DEF_DEBUG()                                                                                          \
-    IT(Debug, , Null) /* 0 */                                                                                          \
-    IT(Debug, , SelectionAdd)                                                                                          \
-    IT(Debug, , SelectionRemove)
-#define BLOCKTYPE_DEF_ARMOR()                                                                                          \
-    IT(Armor, Heavy, Default)                                                                                          \
-    IT(Armor, Heavy, Green)                                                                                            \
-    IT(Armor, Heavy, Red)                                                                                              \
-    IT(Armor, Heavy, Teal)                                                                                             \
-    IT(Armor, Heavy, Violet)                                                                                           \
-    IT(Armor, Light, Default)                                                                                          \
-    IT(Armor, Light, Green)                                                                                            \
-    IT(Armor, Light, Red)                                                                                              \
-    IT(Armor, Light, Teal)                                                                                             \
-    IT(Armor, Light, Violet)
 
 static constexpr float TILE_SIZE = 64.0f; // TODO
 
@@ -36,38 +18,10 @@ static constexpr int TILES_HEIGHT = 512;
 class Map
 {
   public:
-    enum class BlockType
-    {
-        DebugEmpty = -1,
-
-#define IT(group1, group2, color) group1##group2##color,
-        BLOCKTYPE_DEF_DEBUG()
-        BLOCKTYPE_DEF_ARMOR()
-#undef IT
-
-            Count
-    };
-    struct Block
-    {
-        BlockType blockType;
-    };
-
     Map()
     {
-        for (int i = 0; i < static_cast<int>(BlockType::Count); i++)
-        {
-            mBlockTypeTextures[i] = LoadTexture(mBlockTypeTexturePaths[i]);
-            SetTextureFilter(mBlockTypeTextures[i], TEXTURE_FILTER_POINT);
-        }
+        mBlockDefManager.Load();
         Generate();
-    }
-
-    ~Map()
-    {
-        for (Texture2D texture : mBlockTypeTextures)
-        {
-            UnloadTexture(texture);
-        }
     }
 
     void Draw() const
@@ -83,9 +37,9 @@ class Map
 
             for (int y = 0; y < mBlocks.front().size(); y++)
             {
-                const Block &block = mBlocks[x][y];
+                const BlockDef &block = mBlockDefManager.GetBlockDef(mBlocks[x][y]);
 
-                bool empty = (block.blockType == BlockType::DebugEmpty);
+                bool empty = false; // TODO
                 bool hit = hitX && (y >= minY) && (y <= maxY);
 
                 Vector2 position;
@@ -97,9 +51,7 @@ class Map
 
                 if (!empty)
                 {
-                    Texture2D texture = mBlockTypeTextures[static_cast<int>(block.blockType)];
-
-                    DrawTextureV(texture, position, hit ? GRAY : WHITE);
+                    DrawTextureV(block.texture, position, hit ? GRAY : WHITE);
                 }
 
                 if (hit)
@@ -107,11 +59,11 @@ class Map
                     Texture2D texture;
                     if (mSelection.button == MOUSE_BUTTON_LEFT)
                     {
-                        texture = mBlockTypeTextures[static_cast<int>(BlockType::DebugSelectionAdd)];
+                        texture = mBlockDefManager.GetBlockDef(BLOCK_ID_SELECTION_ADD).texture;
                     }
                     else if (mSelection.button == MOUSE_BUTTON_RIGHT)
                     {
-                        texture = mBlockTypeTextures[static_cast<int>(BlockType::DebugSelectionRemove)];
+                        texture = mBlockDefManager.GetBlockDef(BLOCK_ID_SELECTION_REMOVE).texture;
                     }
 
                     DrawTextureV(texture, position, empty ? DARKGRAY : WHITE);
@@ -159,15 +111,13 @@ class Map
         {
             for (int y = minY; y <= maxY; y++)
             {
-                Block &block = mBlocks[x][y];
-
                 if (mSelection.button == MOUSE_BUTTON_LEFT)
                 {
-                    block.blockType = GetRandomBlockType(false); // add
+                    mBlocks[x][y] = mBlockDefManager.GetRandomBlock(mRandom);
                 }
                 else if (mSelection.button == MOUSE_BUTTON_RIGHT)
                 {
-                    block.blockType = BlockType::DebugEmpty; // remove
+                    // TODO: empty
                 }
             }
         }
@@ -179,20 +129,11 @@ class Map
     }
 
   private:
-    std::vector<std::vector<Block>> mBlocks;
+    BlockDefManager mBlockDefManager{};
 
-    std::array<const char *, static_cast<int>(BlockType::Count)> mBlockTypeTexturePaths{
-#define IT(group1, group2, color) "assets/blocks/" #group1 "/" #color ".png",
-        BLOCKTYPE_DEF_DEBUG()
-#undef IT
-#define IT(group1, group2, color) "assets/blocks/" #group1 "/" #group2 "/" #color ".png",
-            BLOCKTYPE_DEF_ARMOR()
-#undef IT
-    };
+    std::vector<std::vector<block_id_t>> mBlocks; // TODO: block_idx_t
 
-    std::array<Texture2D, static_cast<int>(BlockType::Count)> mBlockTypeTextures{};
-
-    Random mRand{};
+    Random mRandom{};
 
     struct Selection
     {
@@ -210,60 +151,14 @@ class Map
 
         for (int x = 0; x < TILES_WIDTH; x++)
         {
-            std::vector<Block> blocksY;
+            std::vector<block_id_t> xBlocks;
 
             for (int y = 0; y < TILES_HEIGHT; y++)
             {
-                BlockType blockType = GetRandomBlockType(true);
-#if 0
-                if (x == 0 && y == 0)
-                {
-                    blockType = BlockType::ArmorHeavyViolet;
-                }
-                else if (y == 0)
-                {
-                    blockType = BlockType::ArmorHeavyRed;
-                }
-                else if (x == 0)
-                {
-                    blockType = BlockType::ArmorHeavyTeal;
-                }
-                else
-                {
-                    blockType = BlockType::ArmorLightGray;
-                }
-#endif
-                Block block = {.blockType = blockType};
-
-                blocksY.push_back(block);
+                xBlocks.push_back(mBlockDefManager.GetRandomBlock(mRandom));
             }
 
-            mBlocks.push_back(blocksY);
-        }
-    }
-
-    BlockType GetRandomBlockType(bool allowEmpty)
-    {
-        while (true) // there is a NON-ZERO chance this will hang until the heat death of the universe :P
-        {
-            BlockType blockType = static_cast<BlockType>(mRand.int_rand(-1, static_cast<int>(BlockType::Count) - 1));
-
-            switch (blockType) // yes, i am THIS lazy to fix the BLOCK_TYPE_DEF() approach
-            {
-                case BlockType::DebugEmpty:
-                    if (!allowEmpty)
-                    {
-                        continue;
-                    }
-                    [[fallthrough]];
-#define IT(group1, group2, color) case BlockType::group1##group2##color:
-                    BLOCKTYPE_DEF_ARMOR()
-#undef IT
-                    return blockType;
-
-                default:
-                    continue;
-            }
+            mBlocks.push_back(xBlocks);
         }
     }
 

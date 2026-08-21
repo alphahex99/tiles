@@ -11,9 +11,9 @@
     "json.schemas": [
         {
             "fileMatch": [
-                "assets/blocks/**/block_def.json"
+                "assets/blocks/**/BlockDef.json"
             ],
-            "url": "./assets/blocks/block_def.schema.json"
+            "url": "./BlockDef.schema.json"
         }
     ]
 }
