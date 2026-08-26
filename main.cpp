@@ -62,13 +62,20 @@ int main(int argc, char *argv[])
         {
             ClearBackground(DARKGRAY);
 
-            BeginMode2D(camera);
+            if (!IsKeyDown(KEY_ONE))
             {
-                map.Draw();
-            }
-            EndMode2D();
+                BeginMode2D(camera);
+                {
+                    map.Draw();
+                }
+                EndMode2D();
 
-            DrawFPS(10, 10);
+                DrawFPS(10, 10);
+            }
+            else
+            {
+                DrawTexture(BlockDef::atlasTexture, 0, 0, WHITE);
+            }
         }
         EndDrawing();
     }

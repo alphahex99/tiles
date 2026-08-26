@@ -2,6 +2,8 @@
 
 #include <cassert>
 
+Texture2D BlockDef::atlasTexture{};
+
 void LoadBlockDef(ska::flat_hash_map<block_id_t, BlockDef> &out, json::ondemand::parser &parser, const fs::path &path)
 {
     auto json = jsonc::load(path);
@@ -30,8 +32,7 @@ void LoadBlockDef(ska::flat_hash_map<block_id_t, BlockDef> &out, json::ondemand:
         assert(hasParentName || hasVariantName);
         std::string name = hasVariantName ? std::string{variantName} : std::string{parentName};
 
-        BlockDef blockDef{std::move(name), LoadTexture((path.parent_path() / texture).string().c_str()), isDebug};
-        SetTextureFilter(blockDef.texture, TEXTURE_FILTER_POINT);
+        BlockDef blockDef{std::move(name), std::move((path.parent_path() / texture).string()), isDebug, {0}};
 
         assert(out.emplace(id, std::move(blockDef)).second);
     }

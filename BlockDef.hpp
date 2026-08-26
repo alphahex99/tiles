@@ -18,13 +18,17 @@ static constexpr block_id_t BLOCK_ID_DEBUG_NULL = 0ULL;
 static constexpr block_id_t BLOCK_ID_DEBUG_SELECTION_ADD = 13935501760859369348ULL;
 static constexpr block_id_t BLOCK_ID_DEBUG_SELECTION_REMOVE = 7963692563000193987ULL;
 
+static constexpr std::size_t BLOCK_PX_SIZE = 64;
+
 struct BlockDef
 {
     std::string name;
-    // block_id_t id;
-    Texture2D texture;
+    std::string texture;
 
-    bool debug = false;
+    bool debug;
+
+    static Texture2D atlasTexture;
+    Rectangle atlasSource;
 };
 
 void LoadBlockDef(ska::flat_hash_map<block_id_t, BlockDef> &out, json::ondemand::parser &parser, const fs::path &path);

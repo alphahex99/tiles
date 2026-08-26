@@ -6,6 +6,7 @@
 #include "flat_hash_map.hpp"
 #include <vector>
 
+#include "Atlas.hpp"
 #include "BlockDef.hpp"
 #include "Jsonc.hpp"
 #include "Random.hpp"
@@ -13,14 +14,6 @@
 class BlockDefManager
 {
   public:
-    ~BlockDefManager()
-    {
-        for (auto &[id, blockDef] : mBlockDefs)
-        {
-            UnloadTexture(blockDef.texture);
-        }
-    }
-
     const BlockDef &GetBlockDef(block_id_t id) const
     {
         auto it = mBlockDefs.find(id);
@@ -61,9 +54,12 @@ class BlockDefManager
                 LoadBlockDef(mBlockDefs, parser, dir_entry.path());
             }
         }
+
+        mAtlas.Generate(mBlockDefs);
     }
 
   private:
+    Atlas mAtlas{};
     ska::flat_hash_map<block_id_t, BlockDef> mBlockDefs;
 };
 

@@ -10,8 +10,6 @@
 #include "BlockDefManager.hpp"
 #include "Random.hpp"
 
-static constexpr float TILE_SIZE = 64.0f; // TODO
-
 static constexpr int TILES_WIDTH = 512;
 static constexpr int TILES_HEIGHT = 512;
 
@@ -26,6 +24,17 @@ class Map
 
     void Draw() const
     {
+        // TODO: this only has to be loaded once
+        const BlockDef *blockDefSelection;
+        if (mSelection.button == MOUSE_BUTTON_LEFT)
+        {
+            blockDefSelection = &mBlockDefManager.GetBlockDef(BLOCK_ID_DEBUG_SELECTION_ADD);
+        }
+        else if (mSelection.button == MOUSE_BUTTON_RIGHT)
+        {
+            blockDefSelection = &mBlockDefManager.GetBlockDef(BLOCK_ID_DEBUG_SELECTION_REMOVE);
+        }
+
         int minX = std::min(mSelection.fromX, mSelection.toX);
         int maxX = std::max(mSelection.fromX, mSelection.toX);
         int minY = std::min(mSelection.fromY, mSelection.toY);
@@ -46,29 +55,20 @@ class Map
                 if (!empty || selectionHit)
                 {
                     position = GetWorldToScreen({static_cast<float>(x), static_cast<float>(y)});
-                    position.x -= TILE_SIZE / 2;
+                    position.x -= BLOCK_PX_SIZE / 2;
                 }
 
                 if (!empty)
                 {
-                    const BlockDef &block = mBlockDefManager.GetBlockDef(id);
+                    const BlockDef &blockDef = mBlockDefManager.GetBlockDef(id);
 
-                    DrawTextureV(block.texture, position, selectionHit ? GRAY : WHITE);
+                    DrawTextureRec(blockDef.atlasTexture, blockDef.atlasSource, position, selectionHit ? GRAY : WHITE);
                 }
 
                 if (selectionHit)
                 {
-                    Texture2D texture;
-                    if (mSelection.button == MOUSE_BUTTON_LEFT)
-                    {
-                        texture = mBlockDefManager.GetBlockDef(BLOCK_ID_DEBUG_SELECTION_ADD).texture;
-                    }
-                    else if (mSelection.button == MOUSE_BUTTON_RIGHT)
-                    {
-                        texture = mBlockDefManager.GetBlockDef(BLOCK_ID_DEBUG_SELECTION_REMOVE).texture;
-                    }
-
-                    DrawTextureV(texture, position, empty ? DARKGRAY : WHITE);
+                    DrawTextureRec(blockDefSelection->atlasTexture, blockDefSelection->atlasSource, position,
+                                   empty ? DARKGRAY : WHITE);
                 }
             }
         }
@@ -177,7 +177,8 @@ class Map
         // |
         // y
         //
-        return {(1 / TILE_SIZE) * (position.x + 2.0f * position.y), (1 / TILE_SIZE) * (2.0f * position.y - position.x)};
+        return {(1.0f / BLOCK_PX_SIZE) * (position.x + 2.0f * position.y),
+                (1.0f / BLOCK_PX_SIZE) * (2.0f * position.y - position.x)};
     }
 
     static Vector2 GetWorldToScreen(Vector2 position)
@@ -193,8 +194,8 @@ class Map
         //  /  \
         // y    x
         //
-        return {(TILE_SIZE / 2) * (position.x - position.y),
-                (TILE_SIZE / 2) * position.y + (TILE_SIZE / 4) * (position.x - position.y)};
+        return {(BLOCK_PX_SIZE / 2) * (position.x - position.y),
+                (BLOCK_PX_SIZE / 2) * position.y + (BLOCK_PX_SIZE / 4) * (position.x - position.y)};
     }
 };
 
