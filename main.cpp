@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
         {
             camera.target.x += movementSpeed;
         }
-        camera.zoom = Clamp(camera.zoom + GetMouseWheelMove() * 0.1f, 0.25f, 4.0f);
+        camera.zoom = Clamp(camera.zoom + GetMouseWheelMove() * 0.1f, 0.1f, 4.0f); // TODO: lerp
         camera.offset = {GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f};
 
         Vector2 mousePosition = GetScreenToWorld2D(GetMousePosition(), camera);
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
             }
             else
             {
-                DrawTexture(BlockDef::atlasTexture, 0, 0, WHITE);
+                map.DrawTextureAtlas();
             }
         }
         EndDrawing();

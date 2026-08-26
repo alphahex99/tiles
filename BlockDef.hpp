@@ -27,7 +27,8 @@ struct BlockDef
 
     bool debug;
 
-    static Texture2D atlasTexture;
+    const Image *atlasImage;
+    const Texture2D *atlasTexture;
     Rectangle atlasSource;
 };
 

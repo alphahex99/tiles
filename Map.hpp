@@ -62,16 +62,21 @@ class Map
                 {
                     const BlockDef &blockDef = mBlockDefManager.GetBlockDef(id);
 
-                    DrawTextureRec(blockDef.atlasTexture, blockDef.atlasSource, position, selectionHit ? GRAY : WHITE);
+                    DrawTextureRec(*blockDef.atlasTexture, blockDef.atlasSource, position, selectionHit ? GRAY : WHITE);
                 }
 
                 if (selectionHit)
                 {
-                    DrawTextureRec(blockDefSelection->atlasTexture, blockDefSelection->atlasSource, position,
+                    DrawTextureRec(*blockDefSelection->atlasTexture, blockDefSelection->atlasSource, position,
                                    empty ? DARKGRAY : WHITE);
                 }
             }
         }
+    }
+
+    void DrawTextureAtlas() const
+    {
+        mBlockDefManager.DrawTextureAtlas();
     }
 
     void OnMouseButtonDown(Vector2 mousePosition)

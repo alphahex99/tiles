@@ -2,8 +2,6 @@
 
 #include <cassert>
 
-Texture2D BlockDef::atlasTexture{};
-
 void LoadBlockDef(ska::flat_hash_map<block_id_t, BlockDef> &out, json::ondemand::parser &parser, const fs::path &path)
 {
     auto json = jsonc::load(path);

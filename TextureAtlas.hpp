@@ -1,5 +1,5 @@
-#ifndef _ATLAS_HPP
-#define _ATLAS_HPP
+#ifndef _TEXTUREATLAS_HPP
+#define _TEXTUREATLAS_HPP
 
 #include <cmath>
 #include "flat_hash_map.hpp"
@@ -8,13 +8,18 @@
 
 #include "BlockDef.hpp"
 
-class Atlas
+class TextureAtlas
 {
   public:
-    ~Atlas()
+    ~TextureAtlas()
     {
         UnloadImage(mImage);
         UnloadTexture(mTexture);
+    }
+
+    void Draw() const
+    {
+        DrawTexture(mTexture, 0, 0, WHITE);
     }
 
     void Generate(ska::flat_hash_map<block_id_t, BlockDef> &blockDefs)
@@ -23,10 +28,10 @@ class Atlas
         int cols = static_cast<int>(std::ceil(std::sqrt(static_cast<float>(count))));
         int rows = (count + cols - 1) / cols;
 
-        int imgWidth = cols * BLOCK_PX_SIZE;
-        int imgHeight = rows * BLOCK_PX_SIZE;
+        int imageWidth = cols * BLOCK_PX_SIZE;
+        int imageHeight = rows * BLOCK_PX_SIZE;
 
-        mImage = GenImageColor(imgWidth, imgHeight, BLANK);
+        mImage = GenImageColor(imageWidth, imageHeight, BLANK);
 
         int i = 0;
         for (auto &[id, blockDef] : blockDefs)
@@ -50,17 +55,16 @@ class Atlas
         mTexture = LoadTextureFromImage(mImage);
         SetTextureFilter(mTexture, TEXTURE_FILTER_POINT);
 
-        BlockDef::atlasTexture = mTexture;
-    }
-
-    const Texture2D &GetTexture() const
-    {
-        return mTexture;
+        for (auto &[id, blockDef] : blockDefs)
+        {
+            blockDef.atlasImage = &mImage;
+            blockDef.atlasTexture = &mTexture;
+        }
     }
 
   private:
-    Image mImage{};
-    Texture2D mTexture{};
+    Image mImage = {0};
+    Texture2D mTexture;
 };
 
-#endif /* _ATLAS_HPP */
+#endif /* _TEXTUREATLAS_HPP */

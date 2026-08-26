@@ -1,28 +1,67 @@
-#ifndef _CHUNK_HPP
-#define _CHUNK_HPP
+#ifndef _MAPCHUNK_HPP
+#define _MAPCHUNK_HPP
 
-#include <cstddef>
-#include <cstdint>
-
-#include "flat_hash_map.hpp"
 #include "raylib.h"
+#include <vector>
 
 #include "BlockDef.hpp"
+#include "BlockDefManager.hpp"
 
-class Chunk // TODO
+class MapChunk
 {
-    using packed_xyz_t = std::uint16_t;
-
   public:
-    static constexpr std::size_t X = 64;
-    static constexpr std::size_t Y = 16;
-    static constexpr std::size_t Z = 64;
-    static_assert(X * Y * Z == 1 << (sizeof(packed_xyz_t) * 8));
+    static constexpr int CHUNK_SIZE = 16;
 
-    Vector2 GetWorld();
+    void Draw() const
+    {
+    }
+
+    void Update(const BlockDefManager &blockDefManager)
+    {
+        if (mImage.data != nullptr)
+        {
+            UnloadImage(mImage);
+        }
+        if (mTexture.id != 0)
+        {
+            UnloadTexture(mTexture);
+        }
+
+        constexpr int imageWidth = CHUNK_SIZE * BLOCK_PX_SIZE;
+        constexpr int imageHeight = CHUNK_SIZE * BLOCK_PX_SIZE;
+
+        mImage = GenImageColor(imageWidth, imageHeight, BLANK);
+
+        int i = 0;
+        for (block_id_t id : mBlocks)
+        {
+            if (id != BLOCK_ID_DEBUG_EMPTY)
+            {
+                const BlockDef &blockDef = blockDefManager.GetBlockDef(id);
+
+                float x = static_cast<float>(i % CHUNK_SIZE * BLOCK_PX_SIZE);
+                float y = static_cast<float>(i / CHUNK_SIZE * BLOCK_PX_SIZE);
+                Rectangle dstRect = {x, y, BLOCK_PX_SIZE, BLOCK_PX_SIZE};
+
+                ImageDraw(&mImage, *blockDef.atlasImage, blockDef.atlasSource, dstRect, WHITE);
+            }
+
+            i++;
+        }
+
+        mTexture = LoadTextureFromImage(mImage);
+        SetTextureFilter(mTexture, TEXTURE_FILTER_POINT);
+    }
+
+    const Texture2D &GetTexture() const
+    {
+        return mTexture;
+    }
 
   private:
-    ska::flat_hash_map<block_idx_t, std::vector<packed_xyz_t>> blocks;
-}
+    std::vector<block_id_t> mBlocks;
+    Image mImage = {0};
+    Texture2D mTexture = {0};
+};
 
-#endif /* _CHUNK_HPP */
+#endif /* _MAPCHUNK_HPP */
