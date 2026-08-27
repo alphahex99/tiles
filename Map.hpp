@@ -39,7 +39,7 @@ class Map
                 Vector2 position;
                 if (!empty || selectionHit)
                 {
-                    position = iso::SquareToIso(BLOCK_PX_SIZE, {static_cast<float>(x), static_cast<float>(y)});
+                    position = iso::SquareToIso<BLOCK_PX_SIZE>({static_cast<float>(x), static_cast<float>(y)});
                     position.x -= BLOCK_PX_SIZE / 2;
                 }
                 if (!empty)
@@ -79,7 +79,7 @@ class Map
             return;
         }
 
-        Vector2 position = iso::IsoToSquare(BLOCK_PX_SIZE, mousePosition);
+        Vector2 position = iso::IsoToSquare<BLOCK_PX_SIZE>(mousePosition);
 
         int x = static_cast<int>(std::floor(position.x));
         int y = static_cast<int>(std::floor(position.y));
@@ -103,7 +103,7 @@ class Map
             return;
         }
 
-        Vector2 position = iso::IsoToSquare(BLOCK_PX_SIZE, mousePosition);
+        Vector2 position = iso::IsoToSquare<BLOCK_PX_SIZE>(mousePosition);
 
         int x = static_cast<int>(std::floor(position.x));
         int y = static_cast<int>(std::floor(position.y));

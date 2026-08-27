@@ -6,7 +6,8 @@
 
 namespace fs = std::filesystem;
 namespace json = simdjson;
-template <typename T> using json_result = json::simdjson_result<T>;
+template <typename T>
+using json_result = json::simdjson_result<T>;
 
 namespace jsonc
 {

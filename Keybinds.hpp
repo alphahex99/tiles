@@ -8,7 +8,8 @@
 
 class Keybinds
 {
-    template <typename T> struct Keybind
+    template <typename T>
+    struct Keybind
     {
         const std::string key;
         T value;

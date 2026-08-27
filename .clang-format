@@ -21,3 +21,4 @@ SpacesInParensOptions :
   InCStyleCasts : false
 BreakAdjacentStringLiterals : true
 PointerAlignment: Right
+BreakTemplateDeclarations: Yes
