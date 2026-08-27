@@ -8,6 +8,7 @@
 #include "raylib.h"
 #include <vector>
 
+#include "Isometric.hpp"
 #include "Block.hpp"
 #include "BlockDefManager.hpp"
 #include "Random.hpp"
@@ -26,11 +27,11 @@ class Map
 
     void Draw() const
     {
-        for (int x = 0; x < mBlocks.size(); x++)
+        for (int x = 0; x < TILES_WIDTH; x++)
         {
             bool selectionHitX = mSelection.button.has_value() && (x >= mSelection.xMin) && (x <= mSelection.xMax);
 
-            for (int y = 0; y < mBlocks.front().size(); y++)
+            for (int y = 0; y < TILES_HEIGHT; y++)
             {
                 bool empty = (mBlocks[x][y].height == 0);
                 bool selectionHit = selectionHitX && (y >= mSelection.yMin) && (y <= mSelection.yMax);
@@ -38,7 +39,7 @@ class Map
                 Vector2 position;
                 if (!empty || selectionHit)
                 {
-                    position = GetWorldToScreen({static_cast<float>(x), static_cast<float>(y)});
+                    position = iso::SquareToIso(BLOCK_PX_SIZE, {static_cast<float>(x), static_cast<float>(y)});
                     position.x -= BLOCK_PX_SIZE / 2;
                 }
                 if (!empty)
@@ -78,7 +79,7 @@ class Map
             return;
         }
 
-        Vector2 position = GetScreenToWorld(mousePosition);
+        Vector2 position = iso::IsoToSquare(BLOCK_PX_SIZE, mousePosition);
 
         int x = static_cast<int>(std::floor(position.x));
         int y = static_cast<int>(std::floor(position.y));
@@ -102,7 +103,7 @@ class Map
             return;
         }
 
-        Vector2 position = GetScreenToWorld(mousePosition);
+        Vector2 position = iso::IsoToSquare(BLOCK_PX_SIZE, mousePosition);
 
         int x = static_cast<int>(std::floor(position.x));
         int y = static_cast<int>(std::floor(position.y));
@@ -140,9 +141,9 @@ class Map
         int maxY = std::max(mSelection.fromY, mSelection.toY);
 
         minX = std::max(minX, 0);
-        maxX = std::min(maxX, static_cast<int>(mBlocks.size()) - 1);
+        maxX = std::min(maxX, TILES_WIDTH - 1);
         minY = std::max(minY, 0);
-        maxY = std::min(maxY, static_cast<int>(mBlocks.front().size()) - 1);
+        maxY = std::min(maxY, TILES_HEIGHT - 1);
 
         for (int x = minX; x <= maxX; x++)
         {
@@ -211,40 +212,6 @@ class Map
 
             mBlocks.push_back(xBlocks);
         }
-    }
-
-    static Vector2 GetScreenToWorld(Vector2 position)
-    {
-        // Rotate isometric grid
-        //   /\
-        //  /  \
-        // y    x
-        //
-        // to square grid.
-        //  ------ x
-        // |
-        // |
-        // y
-        //
-        return {(1.0f / BLOCK_PX_SIZE) * (position.x + 2.0f * position.y),
-                (1.0f / BLOCK_PX_SIZE) * (2.0f * position.y - position.x)};
-    }
-
-    static Vector2 GetWorldToScreen(Vector2 position)
-    {
-        // Rotate square grid
-        //  ------ x
-        // |
-        // |
-        // y
-        //
-        // to isometric grid.
-        //   /\
-        //  /  \
-        // y    x
-        //
-        return {(BLOCK_PX_SIZE / 2) * (position.x - position.y),
-                (BLOCK_PX_SIZE / 2) * position.y + (BLOCK_PX_SIZE / 4) * (position.x - position.y)};
     }
 };
 
