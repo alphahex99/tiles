@@ -44,8 +44,9 @@ target_include_directories(tiles PRIVATE
 )
 target_sources(tiles PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/BlockDef.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Jsonc.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Keybinds.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
 )
 
 target_link_libraries(tiles PRIVATE

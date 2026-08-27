@@ -8,7 +8,7 @@ AlignTrailingComments :
   OverEmptyLines: 0
 AllowShortLoopsOnASingleLine : false
 AllowShortIfStatementsOnASingleLine : Never
-IndentCaseLabels : true #
+IndentCaseLabels : true
 IndentWidth : 4
 SpaceAfterCStyleCast : true
 SortIncludes : Never

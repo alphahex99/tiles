@@ -27,8 +27,9 @@ struct BlockDef
     const Image *atlasImage;
     const Texture2D *atlasTexture;
     Rectangle atlasSource;
-};
 
-void LoadBlockDef(ska::flat_hash_map<block_id_t, BlockDef> &out, json::ondemand::parser &parser, const fs::path &path);
+    static void Load(ska::flat_hash_map<block_id_t, BlockDef> &out, json::ondemand::parser &parser,
+                     const fs::path &path);
+};
 
 #endif /* _BLOCKDEF_HPP */

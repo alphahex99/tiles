@@ -14,6 +14,12 @@
                 "assets/blocks/**/BlockDef.json"
             ],
             "url": "./BlockDef.schema.json"
+        },
+        {
+            "fileMatch": [
+                "Keybinds.json"
+            ],
+            "url": "./Keybinds.schema.json"
         }
     ]
 }

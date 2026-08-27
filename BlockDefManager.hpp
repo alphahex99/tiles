@@ -56,7 +56,7 @@ class BlockDefManager
         {
             if (dir_entry.is_regular_file() && (dir_entry.path().filename() == "BlockDef.json"))
             {
-                LoadBlockDef(mBlockDefs, parser, dir_entry.path());
+                BlockDef::Load(mBlockDefs, parser, dir_entry.path());
             }
         }
 
