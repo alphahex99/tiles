@@ -3,16 +3,10 @@
 
 #include "BlockDef.hpp"
 
-enum class BlockState
-{
-    EMPTY = 0,
-    FLOOR,
-    WALL
-};
-
 struct Block
 {
-    BlockState blockState;
+    unsigned int height;
+
     block_id_t id; // TODO: block_idx_t ?
 };
 

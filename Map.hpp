@@ -31,11 +31,11 @@ class Map
         {
             if (mSelection.button.value() == MOUSE_BUTTON_LEFT)
             {
-                blockDefSelection = &mBlockDefManager.GetBlockDef(BLOCK_ID_DEBUG_SELECTION_ADD);
+                blockDefSelection = &mBlockDefManager.GetBlockDef(BLOCK_ID_DEBUG_SELECTION_REMOVE);
             }
             else if (mSelection.button.value() == MOUSE_BUTTON_RIGHT)
             {
-                blockDefSelection = &mBlockDefManager.GetBlockDef(BLOCK_ID_DEBUG_SELECTION_REMOVE);
+                blockDefSelection = &mBlockDefManager.GetBlockDef(BLOCK_ID_DEBUG_SELECTION_ADD);
             }
         }
 
@@ -50,7 +50,7 @@ class Map
 
             for (int y = 0; y < mBlocks.front().size(); y++)
             {
-                bool empty = (mBlocks[x][y].blockState == BlockState::EMPTY);
+                bool empty = (mBlocks[x][y].height == 0);
                 bool selectionHit = selectionHitX && (y >= minY) && (y <= maxY);
 
                 Vector2 position;
@@ -63,18 +63,12 @@ class Map
                 {
                     const BlockDef &blockDef = mBlockDefManager.GetBlockDef(mBlocks[x][y].id);
 
-                    int height = 1;
-                    if (mBlocks[x][y].blockState == BlockState::WALL)
-                    {
-                        height += 3;
-                    }
-
-                    while (true)
+                    for (unsigned int height = mBlocks[x][y].height;;)
                     {
                         DrawTextureRec(*blockDef.atlasTexture, blockDef.atlasSource, position,
                                        selectionHit ? GRAY : WHITE);
 
-                        if (--height <= 0)
+                        if (--height == 0)
                         {
                             break;
                         }
@@ -152,39 +146,21 @@ class Map
             {
                 if (mSelection.button == MOUSE_BUTTON_LEFT)
                 {
-                    switch (mBlocks[x][y].blockState)
+                    if (mBlocks[x][y].height > 0)
                     {
-                        case BlockState::EMPTY:
-                            mBlocks[x][y].blockState = BlockState::FLOOR;
-                            break;
-
-                        case BlockState::FLOOR:
-                            mBlocks[x][y].blockState = BlockState::WALL;
-                            break;
-
-                        default:
-                        case BlockState::WALL:
-                            break;
+                        mBlocks[x][y].height--;
                     }
-                    mBlocks[x][y].id = mBlockDefManager.GetRandomBlock(mRandom);
                 }
                 else if (mSelection.button == MOUSE_BUTTON_RIGHT)
                 {
-                    switch (mBlocks[x][y].blockState)
+                    if (mBlocks[x][y].height < 3)
                     {
-                        default:
-                        case BlockState::EMPTY:
-                            break;
-
-                        case BlockState::FLOOR:
-                            mBlocks[x][y].blockState = BlockState::EMPTY;
-                            break;
-
-                        case BlockState::WALL:
-                            mBlocks[x][y].blockState = BlockState::FLOOR;
-                            break;
+                        if (mBlocks[x][y].height == 0)
+                        {
+                            mBlocks[x][y].id = mBlockDefManager.GetRandomBlock(mRandom);
+                        }
+                        mBlocks[x][y].height++;
                     }
-                    mBlocks[x][y].blockState = BlockState::EMPTY;
                 }
             }
         }
@@ -219,7 +195,7 @@ class Map
 
             for (int y = 0; y < TILES_HEIGHT; y++)
             {
-                Block block = {BlockState::FLOOR, mBlockDefManager.GetRandomBlock(mRandom)};
+                Block block = {mRandom.uint_rand(0, 3), mBlockDefManager.GetRandomBlock(mRandom)};
 
                 xBlocks.push_back(block);
             }
