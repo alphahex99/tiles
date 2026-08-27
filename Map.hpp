@@ -50,6 +50,8 @@ class Map
 
                     for (unsigned int height = block.height;;)
                     {
+#warning                                                                                                               \
+    "TODO: raylib doesn't do a great job batching these and there's no DrawTextureInstanced, replace with quads + DrawMeshInstanced"
                         DrawTextureRec(*blockDef.atlasTexture, blockDef.atlasSource, position,
                                        selectionHit ? GRAY : WHITE);
 
@@ -209,12 +211,15 @@ class Map
 
             for (int y = 0; y < TILES_HEIGHT; y++)
             {
-                Block block = {mRandom.uint_rand(0, 3), mBlockDefManager.GetRandomBlock(mRandom)};
+                Block block;
 
-                xBlocks.push_back(block);
+                block.height = mRandom.uint_rand(0, 3);
+                block.id = mBlockDefManager.GetRandomBlock(mRandom);
+
+                xBlocks.push_back(std::move(block));
             }
 
-            mBlocks.push_back(xBlocks);
+            mBlocks.push_back(std::move(xBlocks));
         }
     }
 };
