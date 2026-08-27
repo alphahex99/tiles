@@ -33,8 +33,10 @@ class Map
 
             for (int y = 0; y < TILES_HEIGHT; y++)
             {
-                bool empty = (mBlocks[x][y].height == 0);
-                bool selectionHit = selectionHitX && (y >= mSelection.yMin) && (y <= mSelection.yMax);
+                const Block &block = mBlocks[x][y];
+
+                const bool empty = (block.height == 0);
+                const bool selectionHit = selectionHitX && (y >= mSelection.yMin) && (y <= mSelection.yMax);
 
                 Vector2 position;
                 if (!empty || selectionHit)
@@ -44,9 +46,9 @@ class Map
                 }
                 if (!empty)
                 {
-                    const BlockDef &blockDef = mBlockDefManager.GetBlockDef(mBlocks[x][y].id);
+                    const BlockDef &blockDef = mBlockDefManager.GetBlockDef(block.id);
 
-                    for (unsigned int height = mBlocks[x][y].height;;)
+                    for (unsigned int height = block.height;;)
                     {
                         DrawTextureRec(*blockDef.atlasTexture, blockDef.atlasSource, position,
                                        selectionHit ? GRAY : WHITE);
@@ -149,22 +151,24 @@ class Map
         {
             for (int y = minY; y <= maxY; y++)
             {
+                Block &block = mBlocks[x][y];
+
                 if (mSelection.button == MOUSE_BUTTON_LEFT)
                 {
-                    if (mBlocks[x][y].height < 3)
+                    if (block.height < 3)
                     {
-                        if (mBlocks[x][y].height == 0)
+                        if (block.height == 0)
                         {
-                            mBlocks[x][y].id = mBlockDefManager.GetRandomBlock(mRandom);
+                            block.id = mBlockDefManager.GetRandomBlock(mRandom);
                         }
-                        mBlocks[x][y].height++;
+                        block.height++;
                     }
                 }
                 else if (mSelection.button == MOUSE_BUTTON_RIGHT)
                 {
-                    if (mBlocks[x][y].height > 0)
+                    if (block.height > 0)
                     {
-                        mBlocks[x][y].height--;
+                        block.height--;
                     }
                 }
             }
