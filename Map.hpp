@@ -8,6 +8,7 @@
 #include "raylib.h"
 #include <vector>
 
+#include "Block.hpp"
 #include "BlockDefManager.hpp"
 #include "Random.hpp"
 
@@ -49,9 +50,7 @@ class Map
 
             for (int y = 0; y < mBlocks.front().size(); y++)
             {
-                block_id_t id = mBlocks[x][y];
-
-                bool empty = (id == BLOCK_ID_DEBUG_EMPTY);
+                bool empty = (mBlocks[x][y].blockState == BlockState::EMPTY);
                 bool selectionHit = selectionHitX && (y >= minY) && (y <= maxY);
 
                 Vector2 position;
@@ -63,7 +62,7 @@ class Map
 
                 if (!empty)
                 {
-                    const BlockDef &blockDef = mBlockDefManager.GetBlockDef(id);
+                    const BlockDef &blockDef = mBlockDefManager.GetBlockDef(mBlocks[x][y].id);
 
                     DrawTextureRec(*blockDef.atlasTexture, blockDef.atlasSource, position, selectionHit ? GRAY : WHITE);
                 }
@@ -138,11 +137,12 @@ class Map
             {
                 if (mSelection.button == MOUSE_BUTTON_LEFT)
                 {
-                    mBlocks[x][y] = mBlockDefManager.GetRandomBlock(mRandom);
+                    mBlocks[x][y].blockState = BlockState::FLOOR;
+                    mBlocks[x][y].id = mBlockDefManager.GetRandomBlock(mRandom);
                 }
                 else if (mSelection.button == MOUSE_BUTTON_RIGHT)
                 {
-                    mBlocks[x][y] = BLOCK_ID_DEBUG_EMPTY;
+                    mBlocks[x][y].blockState = BlockState::EMPTY;
                 }
             }
         }
@@ -153,7 +153,7 @@ class Map
   private:
     BlockDefManager mBlockDefManager{};
 
-    std::vector<std::vector<block_id_t>> mBlocks; // TODO: block_idx_t
+    std::vector<std::vector<Block>> mBlocks;
 
     Random mRandom{};
 
@@ -173,11 +173,13 @@ class Map
 
         for (int x = 0; x < TILES_WIDTH; x++)
         {
-            std::vector<block_id_t> xBlocks;
+            std::vector<Block> xBlocks;
 
             for (int y = 0; y < TILES_HEIGHT; y++)
             {
-                xBlocks.push_back(mBlockDefManager.GetRandomBlock(mRandom));
+                Block block = {BlockState::FLOOR, mBlockDefManager.GetRandomBlock(mRandom)};
+
+                xBlocks.push_back(block);
             }
 
             mBlocks.push_back(xBlocks);
