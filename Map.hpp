@@ -59,14 +59,28 @@ class Map
                     position = GetWorldToScreen({static_cast<float>(x), static_cast<float>(y)});
                     position.x -= BLOCK_PX_SIZE / 2;
                 }
-
                 if (!empty)
                 {
                     const BlockDef &blockDef = mBlockDefManager.GetBlockDef(mBlocks[x][y].id);
 
-                    DrawTextureRec(*blockDef.atlasTexture, blockDef.atlasSource, position, selectionHit ? GRAY : WHITE);
-                }
+                    int height = 1;
+                    if (mBlocks[x][y].blockState == BlockState::WALL)
+                    {
+                        height += 3;
+                    }
 
+                    while (true)
+                    {
+                        DrawTextureRec(*blockDef.atlasTexture, blockDef.atlasSource, position,
+                                       selectionHit ? GRAY : WHITE);
+
+                        if (--height <= 0)
+                        {
+                            break;
+                        }
+                        position.y -= BLOCK_PX_SIZE / 2;
+                    }
+                }
                 if (selectionHit)
                 {
                     DrawTextureRec(*blockDefSelection->atlasTexture, blockDefSelection->atlasSource, position,
@@ -137,11 +151,38 @@ class Map
             {
                 if (mSelection.button == MOUSE_BUTTON_LEFT)
                 {
-                    mBlocks[x][y].blockState = BlockState::FLOOR;
+                    switch (mBlocks[x][y].blockState)
+                    {
+                        case BlockState::EMPTY:
+                            mBlocks[x][y].blockState = BlockState::FLOOR;
+                            break;
+
+                        case BlockState::FLOOR:
+                            mBlocks[x][y].blockState = BlockState::WALL;
+                            break;
+
+                        default:
+                        case BlockState::WALL:
+                            break;
+                    }
                     mBlocks[x][y].id = mBlockDefManager.GetRandomBlock(mRandom);
                 }
                 else if (mSelection.button == MOUSE_BUTTON_RIGHT)
                 {
+                    switch (mBlocks[x][y].blockState)
+                    {
+                        default:
+                        case BlockState::EMPTY:
+                            break;
+
+                        case BlockState::FLOOR:
+                            mBlocks[x][y].blockState = BlockState::EMPTY;
+                            break;
+
+                        case BlockState::WALL:
+                            mBlocks[x][y].blockState = BlockState::FLOOR;
+                            break;
+                    }
                     mBlocks[x][y].blockState = BlockState::EMPTY;
                 }
             }

@@ -15,7 +15,7 @@ static constexpr block_id_t BLOCK_ID_DEBUG_NULL = 0ULL;
 static constexpr block_id_t BLOCK_ID_DEBUG_SELECTION_ADD = 13935501760859369348ULL;
 static constexpr block_id_t BLOCK_ID_DEBUG_SELECTION_REMOVE = 7963692563000193987ULL;
 
-static constexpr std::size_t BLOCK_PX_SIZE = 64;
+static constexpr int BLOCK_PX_SIZE = 64;
 
 struct BlockDef
 {
