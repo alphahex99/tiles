@@ -26,32 +26,14 @@ class Map
 
     void Draw() const
     {
-        const BlockDef *blockDefSelection = nullptr;
-        if (mSelection.button.has_value())
-        {
-            if (mSelection.button.value() == MOUSE_BUTTON_LEFT)
-            {
-                blockDefSelection = &mBlockDefManager.GetBlockDef(BLOCK_ID_DEBUG_SELECTION_REMOVE);
-            }
-            else if (mSelection.button.value() == MOUSE_BUTTON_RIGHT)
-            {
-                blockDefSelection = &mBlockDefManager.GetBlockDef(BLOCK_ID_DEBUG_SELECTION_ADD);
-            }
-        }
-
-        int minX = std::min(mSelection.fromX, mSelection.toX);
-        int maxX = std::max(mSelection.fromX, mSelection.toX);
-        int minY = std::min(mSelection.fromY, mSelection.toY);
-        int maxY = std::max(mSelection.fromY, mSelection.toY);
-
         for (int x = 0; x < mBlocks.size(); x++)
         {
-            bool selectionHitX = (blockDefSelection != nullptr) && (x >= minX) && (x <= maxX);
+            bool selectionHitX = mSelection.button.has_value() && (x >= mSelection.xMin) && (x <= mSelection.xMax);
 
             for (int y = 0; y < mBlocks.front().size(); y++)
             {
                 bool empty = (mBlocks[x][y].height == 0);
-                bool selectionHit = selectionHitX && (y >= minY) && (y <= maxY);
+                bool selectionHit = selectionHitX && (y >= mSelection.yMin) && (y <= mSelection.yMax);
 
                 Vector2 position;
                 if (!empty || selectionHit)
@@ -77,7 +59,7 @@ class Map
                 }
                 if (selectionHit)
                 {
-                    DrawTextureRec(*blockDefSelection->atlasTexture, blockDefSelection->atlasSource, position,
+                    DrawTextureRec(*mSelection.blockDef->atlasTexture, mSelection.blockDef->atlasSource, position,
                                    empty ? DARKGRAY : WHITE);
                 }
             }
@@ -103,6 +85,11 @@ class Map
 
         mSelection.toX = x;
         mSelection.toY = y;
+
+        mSelection.xMin = std::min(mSelection.fromX, mSelection.toX);
+        mSelection.xMax = std::max(mSelection.fromX, mSelection.toX);
+        mSelection.yMin = std::min(mSelection.fromY, mSelection.toY);
+        mSelection.yMax = std::max(mSelection.fromY, mSelection.toY);
     }
 
     void OnMouseButtonPressed(Vector2 mousePosition, MouseButton button)
@@ -120,7 +107,24 @@ class Map
         int x = static_cast<int>(std::floor(position.x));
         int y = static_cast<int>(std::floor(position.y));
 
-        mSelection = {.button = button, .fromX = x, .fromY = y, .toX = x, .toY = y};
+        mSelection.button = button;
+        mSelection.fromX = x;
+        mSelection.fromY = y;
+        mSelection.toX = x;
+        mSelection.toY = y;
+
+        if (button == MOUSE_BUTTON_LEFT)
+        {
+            mSelection.blockDef = &mBlockDefManager.GetBlockDef(BLOCK_ID_DEBUG_SELECTION_ADD);
+        }
+        else if (button == MOUSE_BUTTON_RIGHT)
+        {
+            mSelection.blockDef = &mBlockDefManager.GetBlockDef(BLOCK_ID_DEBUG_SELECTION_REMOVE);
+        }
+        mSelection.xMin = x;
+        mSelection.xMax = x;
+        mSelection.yMin = y;
+        mSelection.yMax = y;
     }
 
     void OnMouseButtonReleased(MouseButton button)
@@ -146,13 +150,6 @@ class Map
             {
                 if (mSelection.button == MOUSE_BUTTON_LEFT)
                 {
-                    if (mBlocks[x][y].height > 0)
-                    {
-                        mBlocks[x][y].height--;
-                    }
-                }
-                else if (mSelection.button == MOUSE_BUTTON_RIGHT)
-                {
                     if (mBlocks[x][y].height < 3)
                     {
                         if (mBlocks[x][y].height == 0)
@@ -160,6 +157,13 @@ class Map
                             mBlocks[x][y].id = mBlockDefManager.GetRandomBlock(mRandom);
                         }
                         mBlocks[x][y].height++;
+                    }
+                }
+                else if (mSelection.button == MOUSE_BUTTON_RIGHT)
+                {
+                    if (mBlocks[x][y].height > 0)
+                    {
+                        mBlocks[x][y].height--;
                     }
                 }
             }
@@ -178,11 +182,16 @@ class Map
     struct Selection
     {
         std::optional<MouseButton> button = std::nullopt;
-
         int fromX;
         int fromY;
         int toX;
         int toY;
+
+        const BlockDef *blockDef;
+        int xMin;
+        int yMin;
+        int xMax;
+        int yMax;
     } mSelection;
 
     void Generate()
