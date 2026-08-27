@@ -46,7 +46,7 @@ class Map
                 }
                 if (!empty)
                 {
-                    const BlockDef &blockDef = mBlockDefManager.GetBlockDef(block.id);
+                    const BlockDef &blockDef = mBlockDefManager.GetBlockDef(block.index);
 
                     for (unsigned int height = block.height;;)
                     {
@@ -161,7 +161,7 @@ class Map
                     {
                         if (block.height == 0)
                         {
-                            block.id = mBlockDefManager.GetRandomBlock(mRandom);
+                            block.index = mBlockDefManager.GetRandomBlock(mRandom);
                         }
                         block.height++;
                     }
@@ -204,6 +204,7 @@ class Map
     void Generate()
     {
         mBlocks.clear();
+        mBlocks.reserve(TILES_WIDTH * TILES_HEIGHT);
 
         for (int x = 0; x < TILES_WIDTH; x++)
         {
@@ -214,7 +215,7 @@ class Map
                 Block block;
 
                 block.height = mRandom.uint_rand(0, 3);
-                block.id = mBlockDefManager.GetRandomBlock(mRandom);
+                block.index = mBlockDefManager.GetRandomBlock(mRandom);
 
                 xBlocks.push_back(std::move(block));
             }

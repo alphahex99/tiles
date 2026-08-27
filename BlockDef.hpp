@@ -19,6 +19,8 @@ static constexpr int BLOCK_PX_SIZE = 64;
 
 struct BlockDef
 {
+    block_idx_t index;
+
     std::string name;
     std::string texture;
 
@@ -28,8 +30,9 @@ struct BlockDef
     const Texture2D *atlasTexture;
     Rectangle atlasSource;
 
-    static void Load(ska::flat_hash_map<block_id_t, BlockDef> &out, json::ondemand::parser &parser,
-                     const fs::path &path);
+    /// @param[inout] nextindex TODO
+    static void Load(ska::flat_hash_map<block_id_t, BlockDef> &out, block_idx_t &nextIndex,
+                     json::ondemand::parser &parser, const fs::path &path);
 };
 
 #endif /* _BLOCKDEF_HPP */

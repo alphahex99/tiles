@@ -7,7 +7,7 @@ struct Block
 {
     unsigned int height;
 
-    block_id_t id; // TODO: block_idx_t ?
+    block_idx_t index;
 };
 
 #endif /* _BLOCK_HPP */

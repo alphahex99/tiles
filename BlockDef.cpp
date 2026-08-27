@@ -2,7 +2,8 @@
 
 #include <cassert>
 
-void BlockDef::Load(ska::flat_hash_map<block_id_t, BlockDef> &out, json::ondemand::parser &parser, const fs::path &path)
+void BlockDef::Load(ska::flat_hash_map<block_id_t, BlockDef> &out, block_idx_t &nextIndex,
+                    json::ondemand::parser &parser, const fs::path &path)
 {
     auto json = jsonc::load(path);
     assert(!json.error());
@@ -30,8 +31,14 @@ void BlockDef::Load(ska::flat_hash_map<block_id_t, BlockDef> &out, json::ondeman
         assert(hasParentName || hasVariantName);
         std::string name = hasVariantName ? std::string{variantName} : std::string{parentName};
 
-        BlockDef blockDef{std::move(name), std::move((path.parent_path() / texture).string()), isDebug, {0}};
+        BlockDef blockDef;
 
-        assert(out.emplace(id, std::move(blockDef)).second);
+        blockDef.index = nextIndex++;
+        blockDef.name = std::move(name);
+        blockDef.texture = std::move((path.parent_path() / texture).string());
+        blockDef.debug = isDebug;
+
+        auto [it, inserted] = out.emplace(id, std::move(blockDef));
+        assert(inserted);
     }
 }

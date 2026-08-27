@@ -19,30 +19,41 @@ class BlockDefManager
         mTextureAtlas.Draw();
     }
 
-    const BlockDef &GetBlockDef(block_id_t id) const
+    block_idx_t GetBlockIndex(block_id_t id) const
     {
-        auto it = mBlockDefs.find(id);
-        assert(it != mBlockDefs.end());
-        return it->second;
+        auto it = mBlockDefsById.find(id);
+        assert(it != mBlockDefsById.end());
+        return it->second.index;
     }
 
-    block_id_t GetRandomBlock(Random &random) const
+    const BlockDef &GetBlockDef(block_idx_t index) const
     {
-        assert(!mBlockDefs.empty());
-        auto it = mBlockDefs.begin();
+        return *mBlockDefsByIdx[index];
+    }
+
+    /// @todo !!! REMOVE !!! I wrote this commit while drunk
+    const BlockDef &GetBlockDef(block_id_t id) const
+    {
+        return *mBlockDefsByIdx[GetBlockIndex(id)];
+    }
+
+    block_idx_t GetRandomBlock(Random &random) const
+    {
+        assert(!mBlockDefsById.empty());
+        auto it = mBlockDefsById.begin();
 
         while (true)
         { // there is a NON-ZERO chance this will hang until the heat death of the universe :P
-            unsigned int i = random.uint_rand(0, mBlockDefs.size() - 1);
+            unsigned int i = random.uint_rand(0, mBlockDefsById.size() - 1);
 
-            it = std::next(mBlockDefs.begin(), i);
+            it = std::next(mBlockDefsById.begin(), i);
             if (!it->second.debug)
             {
                 break;
             }
         };
 
-        return it->first;
+        return GetBlockIndex(it->first);
     }
 
     void Load()
@@ -50,21 +61,31 @@ class BlockDefManager
         fs::path path = "assets/blocks/";
         assert(fs::exists(path));
 
+        block_idx_t nextIndex = 0;
         json::ondemand::parser parser;
 
         for (const fs::directory_entry &dir_entry : fs::recursive_directory_iterator(path))
         {
             if (dir_entry.is_regular_file() && (dir_entry.path().filename() == "BlockDef.json"))
             {
-                BlockDef::Load(mBlockDefs, parser, dir_entry.path());
+                BlockDef::Load(mBlockDefsById, nextIndex, parser, dir_entry.path());
             }
         }
 
-        mTextureAtlas.Generate(mBlockDefs);
+        mBlockDefsByIdx.resize(nextIndex);
+        for (auto &[id, blockDef] : mBlockDefsById)
+        {
+            // assert(blockDef.index < nextIndex);
+            mBlockDefsByIdx[blockDef.index] = &blockDef;
+        }
+
+        mTextureAtlas.Generate(mBlockDefsById);
     }
 
   private:
-    ska::flat_hash_map<block_id_t, BlockDef> mBlockDefs;
+    ska::flat_hash_map<block_id_t, BlockDef> mBlockDefsById;
+    std::vector<BlockDef *> mBlockDefsByIdx;
+
     TextureAtlas mTextureAtlas{};
 };
 
