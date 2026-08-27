@@ -4,6 +4,7 @@
 #include <array>
 #include <cassert>
 #include <cmath>
+#include <optional>
 #include "raylib.h"
 #include <vector>
 
@@ -24,15 +25,17 @@ class Map
 
     void Draw() const
     {
-        // TODO: this only has to be loaded once
-        const BlockDef *blockDefSelection;
-        if (mSelection.button == MOUSE_BUTTON_LEFT)
+        const BlockDef *blockDefSelection = nullptr;
+        if (mSelection.button.has_value())
         {
-            blockDefSelection = &mBlockDefManager.GetBlockDef(BLOCK_ID_DEBUG_SELECTION_ADD);
-        }
-        else if (mSelection.button == MOUSE_BUTTON_RIGHT)
-        {
-            blockDefSelection = &mBlockDefManager.GetBlockDef(BLOCK_ID_DEBUG_SELECTION_REMOVE);
+            if (mSelection.button.value() == MOUSE_BUTTON_LEFT)
+            {
+                blockDefSelection = &mBlockDefManager.GetBlockDef(BLOCK_ID_DEBUG_SELECTION_ADD);
+            }
+            else if (mSelection.button.value() == MOUSE_BUTTON_RIGHT)
+            {
+                blockDefSelection = &mBlockDefManager.GetBlockDef(BLOCK_ID_DEBUG_SELECTION_REMOVE);
+            }
         }
 
         int minX = std::min(mSelection.fromX, mSelection.toX);
@@ -42,7 +45,7 @@ class Map
 
         for (int x = 0; x < mBlocks.size(); x++)
         {
-            bool selectionHitX = (x >= minX) && (x <= maxX);
+            bool selectionHitX = (blockDefSelection != nullptr) && (x >= minX) && (x <= maxX);
 
             for (int y = 0; y < mBlocks.front().size(); y++)
             {
@@ -81,6 +84,11 @@ class Map
 
     void OnMouseButtonDown(Vector2 mousePosition)
     {
+        if (!mSelection.button.has_value())
+        {
+            return;
+        }
+
         Vector2 position = GetScreenToWorld(mousePosition);
 
         int x = static_cast<int>(std::floor(position.x));
@@ -94,6 +102,11 @@ class Map
     {
         assert((button == MOUSE_BUTTON_LEFT) || (button == MOUSE_BUTTON_RIGHT));
 
+        if (mSelection.button.has_value())
+        {
+            return;
+        }
+
         Vector2 position = GetScreenToWorld(mousePosition);
 
         int x = static_cast<int>(std::floor(position.x));
@@ -102,8 +115,13 @@ class Map
         mSelection = {.button = button, .fromX = x, .fromY = y, .toX = x, .toY = y};
     }
 
-    void OnMouseButtonReleased()
+    void OnMouseButtonReleased(MouseButton button)
     {
+        if (!mSelection.button.has_value() || (mSelection.button.value() != button))
+        {
+            return;
+        }
+
         int minX = std::min(mSelection.fromX, mSelection.toX);
         int maxX = std::max(mSelection.fromX, mSelection.toX);
         int minY = std::min(mSelection.fromY, mSelection.toY);
@@ -129,10 +147,7 @@ class Map
             }
         }
 
-        mSelection.fromX = -1;
-        mSelection.fromY = -1;
-        mSelection.toX = -1;
-        mSelection.toY = -1;
+        mSelection.button = std::nullopt;
     }
 
   private:
@@ -144,12 +159,12 @@ class Map
 
     struct Selection
     {
-        MouseButton button;
+        std::optional<MouseButton> button = std::nullopt;
 
-        int fromX = -1;
-        int fromY = -1;
-        int toX = -1;
-        int toY = -1;
+        int fromX;
+        int fromY;
+        int toX;
+        int toY;
     } mSelection;
 
     void Generate()

@@ -53,9 +53,13 @@ int main(int argc, char *argv[])
         {
             map.OnMouseButtonPressed(mousePosition, MOUSE_BUTTON_RIGHT);
         }
-        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) || IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
+        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
         {
-            map.OnMouseButtonReleased();
+            map.OnMouseButtonReleased(MOUSE_BUTTON_LEFT);
+        }
+        if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
+        {
+            map.OnMouseButtonReleased(MOUSE_BUTTON_RIGHT);
         }
 
         BeginDrawing();
