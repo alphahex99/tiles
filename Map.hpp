@@ -116,7 +116,8 @@ class Map
         assert((button == MOUSE_BUTTON_LEFT) || (button == MOUSE_BUTTON_RIGHT));
 
         if (mSelection.button.has_value())
-        {
+        {                                     // already holding another button
+            mSelection.button = std::nullopt; // cancel selection
             return;
         }
 
